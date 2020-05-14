@@ -11,7 +11,7 @@ let AppController = (function() {
           //log: new Date(),
           //type: ''
         }],
-        date: new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
+        date: new Date(0),//new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
         saldo: 0
       }],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
     mostRecent: {
@@ -77,8 +77,8 @@ let AppController = (function() {
        minutes = now.getMinutes();
        return hour + ':' + minutes;
      },
-     addLogging: function(type) {
-       let now, dayString, item;
+     addLogging: function(type,addition) {
+       let now, dayString, item, nowObj;
        now = new Date();
        //new Data structure
        //get today-string
@@ -93,7 +93,12 @@ let AppController = (function() {
           data.logs.push(dayObject)
        }
        item = data.logs[data.logs.findIndex(el => el.date.getTime() === dayString.getTime())];
-       nowObj = {log: now};
+
+       if (addition) {
+       nowObj = {log: now, type: addition};
+     } else {
+        nowObj = {log: now};
+     }
        if (type === 'SISÄÄN' && data.mostRecent.type !== 'SISÄÄN') {
          item.in.push(nowObj);
          data.mostRecent.type = type;
@@ -105,7 +110,8 @@ let AppController = (function() {
          data.mostRecent.time = now;
          console.log('New ULOS registered.');
        }
-
+     },
+     saveLoggingType: function(string) {
 
      },
      mostRecentLogging: function() {
@@ -124,14 +130,14 @@ let AppController = (function() {
        {  (mostRecentOut > obj.out[i].log) ? mostRecentOut : mostRecentOut = obj.out[i].log }
        return mostRecentOut;
      },
-     calcSaldo: function() {
+     calcSaldo: function() {//should be called only
        let obj = this.mostRecentDay(0);
        if (obj.in.length > 0 ) {
        //get most recent logout.
        let mostRecentOut = this.mostRecentOut();
 
        //calculate smallest amount, i.e. the first event in that array
-       let firstLoginToday  = obj.in.sort(function(a,b){return a.log - b.log})[0];
+       let firstLoginToday  = obj.in.sort(function(a,b){return a.log - b.log})[0].log;
 
        // calculate difference
        let workingDay = mostRecentOut - firstLoginToday;
@@ -223,7 +229,7 @@ return {
       return DOMStrings;
     },
     regLogging: function(type,addition) {// addition at the moment only 'OAS'
-      AppController.addLogging(type);
+      AppController.addLogging(type,addition);
       //here we can calculate saldo
        if (type === 'ULOS') {
        AppController.calcSaldo();
@@ -361,7 +367,7 @@ let Controller = (function(AppController, UIController) {
   };
 
   let autoLogOut = function() {
-    //log out after 21:00
+    //log out after 20:15
 
   }
 
