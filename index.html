@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fi">
+    <head>
+        <meta charset="UTF-8">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600" rel="stylesheet" type="text/css">
+        <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+        <link type="text/css" rel="stylesheet" href="style.css">
+        <title>Työaikaseuranta</title>
+        <link rel="apple-touch-icon" sizes="180x180" href="">
+        <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+    </head>
+    <body>
+      <header>
+        <h1>Työaikaseuranta</h1>
+      </header>
+      <div class="testing-time-input">
+        <label for="time-input">TESTING: SYÖTÄ PÄIVÄ </label>
+        <input type="date" id="time-input" name="" value="">
+      </div>
+      <div class="time-chooser">
+        <label for="tyoaika">Aika</label>
+        <div type="time" name="tyoaika" class="tyoaika" id="tyoaika"></div>
+
+        <input type="submit" id="sis" value="SISÄÄN" class="tyoaika-button">
+        <input type="submit" id= "ulos" name="" value="ULOS" class="tyoaika-button">
+      </div>
+      <div>
+        <p id="status"></p>
+      </div>
+      <div class="settings-chooser">
+        <p class="button" id="open-settings">Vaihda työaika</p>
+      </div>
+      <!-- settings modaalimuodossa -->
+      <div id="modal-settings" class="settings">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+
+        <label for="working-time-input">Työaika/pv</label>
+        <input type="time" name="Työaika" id="working-time-input" class="working-time-input" value="07:21">
+        <label for="working-time-percent">Työaika-%</label>
+        <input type="number" id="working-time-percent" class="working-time-percent" name="Työaika-%" value="100" step="1" min="1" max="100">
+        <input type="submit" class="button" name="Tallenna" value="Tallenna" id="settings-submit">
+        </div>
+      </div>
+      <!-- end modal -->
+      <script src="app.js"></script>
+  </body>
+</html>
