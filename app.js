@@ -3,8 +3,14 @@ let AppController = (function() {
   let date = new Date();
   let data = {
     logs: [{
-        in: [],
-        out: [],
+        in: [{
+          //log: new Date(),
+          //type: ''
+        }],
+        out: [{
+          //log: new Date(),
+          //type: ''
+        }],
         date: new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
         saldo: 0
       }],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
@@ -52,10 +58,10 @@ let AppController = (function() {
        for (var i = 0; i < data.logs.length; i++) {
          data.logs[i].date = new Date(data.logs[i].date);
          for (var e = 0; e < data.logs[i].out.length; e++) {
-            data.logs[i].out[e] = new Date(data.logs[i].out[e]);
+            data.logs[i].out[e].log = new Date(data.logs[i].out[e].log);
          }
          for (var u = 0; u < data.logs[i].in.length; u++) {
-           data.logs[i].in[u] = new Date(data.logs[i].in[u]);
+           data.logs[i].in[u].log = new Date(data.logs[i].in[u].log);
          }
        }
       }
@@ -87,13 +93,14 @@ let AppController = (function() {
           data.logs.push(dayObject)
        }
        item = data.logs[data.logs.findIndex(el => el.date.getTime() === dayString.getTime())];
+       nowObj = {log: now};
        if (type === 'SISÄÄN' && data.mostRecent.type !== 'SISÄÄN') {
-         item.in.push(now);
+         item.in.push(nowObj);
          data.mostRecent.type = type;
          data.mostRecent.time = now;
          console.log('New SISÄÄN registered.');
        } else if (type === 'ULOS' && data.mostRecent.type !== 'ULOS') {
-         item.out.push(now);
+         item.out.push(nowObj);
          data.mostRecent.type = type;
          data.mostRecent.time = now;
          console.log('New ULOS registered.');
@@ -114,7 +121,7 @@ let AppController = (function() {
        let obj = this.mostRecentDay(0);
        let mostRecentOut;//Saves date in MS
        for (let i = 0; i < obj.out.length; i++ )
-       {  (mostRecentOut > obj.out[i]) ? mostRecentOut : mostRecentOut = obj.out[i] }
+       {  (mostRecentOut > obj.out[i].log) ? mostRecentOut : mostRecentOut = obj.out[i].log }
        return mostRecentOut;
      },
      calcSaldo: function() {
@@ -124,7 +131,7 @@ let AppController = (function() {
        let mostRecentOut = this.mostRecentOut();
 
        //calculate smallest amount, i.e. the first event in that array
-       let firstLoginToday  = obj.in.sort(function(a,b){return a - b})[0];
+       let firstLoginToday  = obj.in.sort(function(a,b){return a.log - b.log})[0];
 
        // calculate difference
        let workingDay = mostRecentOut - firstLoginToday;
