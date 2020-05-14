@@ -2,12 +2,10 @@
 let AppController = (function() {
   let date = new Date();
   let data = {
-    out: [],
-    in: [],
     logs: [{
         in: [],
         out: [],
-        date: new Date(date.getFullYear, date.getMonth, date.getDate),
+        date: new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
         saldo: 0
       }],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
     mostRecent: {
@@ -26,10 +24,7 @@ let AppController = (function() {
   let calcDayString = function(now) {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
-  //Überflüssig?
-  let filterDay = function (date) {//filters an array
-    return date.getDate() === presentDay && date.getMonth() === presentMonth;
-  };
+
 
   return {
   // Setting data into local storage
@@ -46,10 +41,6 @@ let AppController = (function() {
      },
      //update Data to work with
      updateData: function (storedData) {
-       let outArray = storedData.out.map(function(cur) {return new Date(cur)});
-       let inArray = storedData.in.map(cur => new Date(cur));
-       data.out = outArray;
-       data.in = inArray;
        data.saldo = storedData.saldo;
        data.workingTime = storedData.workingTime;
        data.mostRecent = storedData.mostRecent;
@@ -132,12 +123,6 @@ let AppController = (function() {
        //get most recent logout.
        let mostRecentOut = this.mostRecentOut();
 
-       // look for first log in at the same day
-       //let presentDay = mostRecentOut.getDate();
-       //let presentMonth = mostRecentOut.getMonth();
-
-       //let todayArray = data.in.filter(filterDay);
-       //console.log(todayArray);
        //calculate smallest amount, i.e. the first event in that array
        let firstLoginToday  = obj.in.sort(function(a,b){return a - b})[0];
 
@@ -203,6 +188,7 @@ let UIController = (function() {
   let DOMStrings = {
     inputField: '.tyoaika',
     buttonIn: '#sis',
+    buttonOAOUT: '#OAU',
     buttonOut: '#ulos',
     buttonSubmit: '#settings-submit',
     modal: '#modal-settings',
@@ -229,13 +215,13 @@ return {
     getDOMStrings: function() {
       return DOMStrings;
     },
-    regLogging: function(type) {
+    regLogging: function(type,addition) {// addition at the moment only 'OAS'
       AppController.addLogging(type);
-      //here we can calculate saldo and show the logging to the user
-       AppController.storeData();
+      //here we can calculate saldo
        if (type === 'ULOS') {
        AppController.calcSaldo();
-     }
+      }
+      AppController.storeData();
     },
     //Shows if the user is IN or OUT
     status: function() {
@@ -308,6 +294,8 @@ let Controller = (function(AppController, UIController) {
 
     document.querySelector(DOM.buttonOut).addEventListener('click', ctrAddOut);
 
+    document.querySelector(DOM.buttonOAOUT).addEventListener('click', ctrAddOwnOut);
+
     /*
     document.addEventListener('keypress', function(event) {
       if (event.keyCode === 13 || event.which === 13) {//for older browsers the second version
@@ -328,6 +316,10 @@ let Controller = (function(AppController, UIController) {
       UIController.regLogging('ULOS');
       UIController.status();
     };
+    let ctrAddOwnOut = function() {
+      UIController.regLogging('ULOS','OAS')
+      UIController.status();
+    }
   let setNow = function () {
     AppController.setTime();
   };
@@ -372,9 +364,11 @@ let Controller = (function(AppController, UIController) {
       UIController.setModal();
       //setInterval(setNow(), 1000);
       //Show the time
+      document.getElementById('tyoaika').innerText = new Date().toLocaleTimeString();
+      //update time every second
       setInterval(function() {
 
-        document.getElementById('tyoaika').innerText = new Date().toLocaleTimeString().slice(0,5);
+        document.getElementById('tyoaika').innerText = new Date().toLocaleTimeString();
       }, 1000);
 
       loadData();

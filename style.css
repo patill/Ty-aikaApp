@@ -7,8 +7,12 @@ body {
     font-weight: 400;
 }
 
+.testing-time-input {
+  display: none;
+}
+
 .tyoaika {
-width: 55px;
+//width: 55px;
 border: 2px solid #e7e7e7;
 margin: 10px 0px;
 font-size: 18px;
@@ -18,7 +22,8 @@ margin-right: 10px;
 font-weight: 300;
 transition: border 0.3s;
 text-align: center;
-
+display: inline-block;
+padding: 5px;
 }
 
 .working-time-input, .working-time-percent {
@@ -45,7 +50,7 @@ text-align: center;
   color: white;
   display: inline-block;
   text-align: center;
-  vertiacal-align: middle;
+  vertical-align: middle;
   touch-action: manipulation;
   cursor: pointer;
   padding: 6px 12px;
