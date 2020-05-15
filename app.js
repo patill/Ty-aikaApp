@@ -24,13 +24,27 @@ let AppController = (function() {
   };
 
 
-
-
-
   let calcDayString = function(now) {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
-
+  let countOwnOutSaldo = function(obj) {
+    if (obj.out.find(el => el.type)) {
+    let inArray = obj.in.map(el => el.log);
+    console.log(inArray);
+    let outArray = obj.out.filter(el => el.type === 'OAS').map(el => el.log);
+    console.log(outArray);
+    //find next bigger entry from out in the in-array, then do in-entry - out-entry
+    let outTimeArray = [0];
+    for (let i = 0; i < outArray.length; i++) {
+      let nextIn = inArray.find(el => el > outArray[i]);
+      //nextIn can be undefined, if user has not yet come back from OwnOut
+      if (nextIn) {
+      outTimeArray.push(nextIn - outArray[i]);
+        }
+      }
+    return outTimeArray;
+    }
+  };
 
   return {
   // Setting data into local storage
@@ -142,10 +156,19 @@ let AppController = (function() {
        // calculate difference
        let workingDay = mostRecentOut - firstLoginToday;
        console.log(this.toHours(workingDay));
+
        //ToDO: take into account also login and logouts in between and their reasons
+       let ownSaldoArray = countOwnOutSaldo(obj);
+       const arraySum = arr => arr.reduce((a,b) => a + b, 0);
+       let ownSaldo = arraySum(ownSaldoArray);
+
+       //remove sum of ownOut from workingDay
+       workingDay - ownSaldo;
 
        //compare to workingTime
        let saldoToday = workingDay - data.workingTime;
+
+
        //write saldoToday into memory
 
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
