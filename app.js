@@ -23,7 +23,6 @@ let AppController = (function() {
     dailySaldo: [] //array of objects with date and saldo pairs
   };
 
-
   let calcDayString = function(now) {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
@@ -144,33 +143,37 @@ let AppController = (function() {
        {  (mostRecentOut > obj.out[i].log) ? mostRecentOut : mostRecentOut = obj.out[i].log }
        return mostRecentOut;
      },
-     calcSaldo: function() {//should be called only
-       let obj = this.mostRecentDay(0);
+     calcSaldo: function() {//should be called only after logout
+       let obj, mostRecentOut, firstLoginToday, workingDay, ownSaldoArray;
+       obj = this.mostRecentDay(0);
        if (obj.in.length > 0 ) {
        //get most recent logout.
-       let mostRecentOut = this.mostRecentOut();
+       mostRecentOut = this.mostRecentOut();
 
        //calculate smallest amount, i.e. the first event in that array
-       let firstLoginToday  = obj.in.sort(function(a,b){return a.log - b.log})[0].log;
+       firstLoginToday  = obj.in.sort(function(a,b){return a.log - b.log})[0].log;
 
        // calculate difference
-       let workingDay = mostRecentOut - firstLoginToday;
+       workingDay = mostRecentOut - firstLoginToday;
        console.log(this.toHours(workingDay));
 
-       //ToDO: take into account also login and logouts in between and their reasons
-       let ownSaldoArray = countOwnOutSaldo(obj);
+       //take into account also login and logouts in between and their reasons
+       ownSaldoArray = countOwnOutSaldo(obj);
+       console.log(ownSaldoArray);
        const arraySum = arr => arr.reduce((a,b) => a + b, 0);
-       let ownSaldo = arraySum(ownSaldoArray);
+       //calc only if own loggings have happened:
+       if (ownSaldoArray) {
+          let ownSaldo = arraySum(ownSaldoArray);
+          console.log(this.toHours(ownSaldo));
 
-       //remove sum of ownOut from workingDay
-       workingDay - ownSaldo;
-
+          //remove sum of ownOut from workingDay
+          workingDay = workingDay - ownSaldo;
+          console.log(this.toHours(workingDay));
+        }
        //compare to workingTime
        let saldoToday = workingDay - data.workingTime;
 
-
        //write saldoToday into memory
-
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
        //take old saldo and add/remove new saldo
        let totalSaldo;
