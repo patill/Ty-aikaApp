@@ -1,0 +1,14 @@
+{
+  "short_name": "Työaika",
+  "name": "Työaikaseuranta",
+  "icons": [
+    {
+      "src": "images/apple-icon.png",
+      "sizes": "180x180x",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#303F9F",
+  "start_url": "/",
+  "display": "standalone",
+}
