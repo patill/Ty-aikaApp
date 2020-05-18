@@ -2,7 +2,7 @@
 let AppController = (function() {
   let date = new Date();
   let data = {
-    logs: [{
+    logs: [
       /*
         in: [{
           //log: new Date(),
@@ -15,7 +15,7 @@ let AppController = (function() {
         date: new Date(0),//new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
         saldo: 0
         */
-      }],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
+      ],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
     mostRecent: {
       type: '',
       time: 0
@@ -103,7 +103,7 @@ let AppController = (function() {
        //get today-string
        dayString = calcDayString(now);
          // if day is not there  create it
-         if (!data.logs.some(el => el.date.getTime() === dayString.getTime())) {
+         if (!data.logs.some(el => el.date) || !data.logs.some(el => el.date.getTime() === dayString.getTime())) {
           let dayObject = {};
           dayObject.date = dayString;
           dayObject.in = [];
