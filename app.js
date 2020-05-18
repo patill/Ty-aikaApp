@@ -150,7 +150,7 @@ let AppController = (function() {
        return mostRecentOut;
      },
      calcSaldo: function() {//should be called only after logout
-       let obj, mostRecentOut, firstLoginToday, workingDay, ownSaldoArray;
+       let obj, mostRecentOut, firstLoginToday, workingDay, ownSaldo, ownSaldoArray;
        obj = this.mostRecentDay(0);
        if (obj.in.length > 0 ) {
        //get most recent logout.
@@ -169,9 +169,10 @@ let AppController = (function() {
        const arraySum = arr => arr.reduce((a,b) => a + b, 0);
        //calc only if own loggings have happened:
        if (ownSaldoArray) {
-          let ownSaldo = arraySum(ownSaldoArray);
+          ownSaldo = arraySum(ownSaldoArray);
           console.log(this.toHours(ownSaldo));
-
+          //write it into memory
+          data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
           workingDay = workingDay - ownSaldo;
           console.log(this.toHours(workingDay));
@@ -214,6 +215,29 @@ let AppController = (function() {
        let minutes = Math.abs(Math.round(time / 1000 / 60 % 60));
        return hours.toString() + ':' + minutes;
      },
+     printData: function() {
+       let myData, printOut;
+       myData = data.logs.sort(function(a, b){return a.date - b.date});
+       printOut = [];
+       for (let i = 0; i < myData.length; i++) {
+         let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
+         dailyIn = myData[i].in.sort(function(a,b){return a -b})[0].log;
+         dailyInDate = (dailyIn) ? new Date(dailyIn) : -1;
+         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return a -b})[myData[i].out.length -1].log : -1;
+         dailyOutDate = (dailyOut > 0) ? new Date(dailyOut) : -1;
+         workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOut - dailyIn : '---';
+         printLine = [
+           `${myData[i].date.getDate()}.${myData[i].date.getMonth() + 1}.${myData[i].date.getFullYear()}`,
+           (dailyIn) ? dailyIn.toLocaleTimeString() : '---',
+           (dailyOut > 0) ? dailyOut.toLocaleTimeString() : '---',
+           (!isNaN(workingDay)) ? this.toHours(workingDay) : '---',//työpäivän pituus
+           this.toHours(myData[i].saldo),
+           (myData[i].ownSaldo) ? this.toHours(myData[i].ownSaldo) : '---'
+            ];
+         printOut.push(printLine);
+       }
+       return printOut;
+     },
      testing: function() {
        console.log(data);
      }
@@ -240,7 +264,8 @@ let UIController = (function() {
     modalButton: '#open-settings',
     modalClose: 'close',
     workingTimeString: '#working-time-input',
-    workingPercentString: '#working-time-percent'
+    workingPercentString: '#working-time-percent',
+    logTable: '.history-caption'
   };
   let saveSettings = function() {
     //save changes to working time and percents
@@ -285,6 +310,28 @@ return {
 
       //Update time to Data
       saveSettings();
+    },
+    formatLogData: function(array) {
+      let table = document.querySelector(DOMStrings.logTable);
+
+      array.forEach(el => {
+
+        /*
+          let row = '<td>' + el[0] + '</td>' + '<td>' + el[1] + '</td>' + '<td>' + el[2] + '</td>' + '<td>' + el[3] + '</td>' + '<td>' + el[4] + '</td>' ;
+          console.log(row);
+          */
+          let rows = document.createElement('TR');
+          el.forEach(innerEl => {
+            let row = document.createElement('TD');
+            let cell = document.createTextNode(innerEl);
+            row.appendChild(cell);
+            rows.appendChild(row);
+          });
+
+          table.appendChild(rows);
+      });
+      table.classList.toggle('hidden');
+
     },
     setModal: function() {
       // Get the modal
