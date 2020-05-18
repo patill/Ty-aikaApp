@@ -13,13 +13,13 @@
       <header>
         <h1>Työaikaseuranta</h1>
       </header>
-      <div class="testing-time-input">
+      <div class="testing-time-input hidden">
         <label for="time-input">TESTING: SYÖTÄ PÄIVÄ </label>
         <input type="date" id="time-input" name="" value="">
       </div>
       <div class="time-chooser">
         <label for="tyoaika">Aika</label>
-        <div type="time" name="tyoaika" class="tyoaika" id="tyoaika"></div>
+        <div type="time" name="tyoaika" class="tyoaika" id="tyoaika"></div><br>
 
         <input type="submit" id="sis" value="SISÄÄN" class="tyoaika-button">
         <input type="submit" id= "ulos" name="" value="ULOS" class="tyoaika-button">
@@ -29,7 +29,7 @@
         <p id="status"></p>
       </div>
       <div class="settings-chooser">
-        <p class="button" id="open-settings">Vaihda työaika</p>
+        <div class="button" id="open-settings">Vaihda työaika</div>
       </div>
       <!-- settings modaalimuodossa -->
       <div id="modal-settings" class="settings">
@@ -46,18 +46,45 @@
           <h3>Korjaa kirjaus</h3>
           <form>
           <label for="correction-date">Päivämäärä</label>
-          <input type="datetime" name="" id="correction-date" value="">
+          <input type="date" name="" required id="correction-date" value="">
           <label for="correction-time">Aika</label>
-          <input type="time" name="" id="correction-time" value="">
-          <label for="correction-type">Tyyppi</label>
-          <input type="radio" name="type" value="SISÄÄN">
-          <input type="radio" name="type" value="ULOS">
-          <input type="radio" name="type" value="Oma asia ulos">
+          <input type="time" name="" required id="correction-time" value="">
+          <p for="correction-type">Tyyppi</p>
+          <input type="radio" name="type" required id="radio-sis" value="SISÄÄN">
+          <label for="radio-sis">SISÄÄN</label><br>
+          <input type="radio" name="type" required id="radio-ul" value="ULOS">
+          <label for="radio-ul">ULOS</label><br>
+          <input type="radio" name="type" required id= "radio-oas" value="Oma asia ulos">
+          <label for="radio-oas">Oma asia ulos</label><br>
+          <input type="submit" class="button" name="" value="Talenna">
           </form>
         </div>
         </div>
       </div>
       <!-- end modal -->
+
+      <!-- Show the history -->
+      <div class="history">
+        <table>
+          <tr class="hidden">
+            <th>Päivä</th>
+            <th>Sisään</th>
+            <th>Ulos</th>
+            <th>Saldo</th>
+          </tr>
+
+
+        <!--
+        <tr>
+          <td>1.1.1970</td>
+          <td>08.12</td>
+          <td>15.34</td>
+          <td>3.23</td>
+        </tr>
+
+        -->
+        </table>
+      </div>
       <script src="app.js"></script>
   </body>
 </html>
