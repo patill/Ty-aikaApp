@@ -3,6 +3,7 @@ let AppController = (function() {
   let date = new Date();
   let data = {
     logs: [{
+      /*
         in: [{
           //log: new Date(),
           //type: ''
@@ -13,6 +14,7 @@ let AppController = (function() {
         }],
         date: new Date(0),//new Date(date.getFullYear, date.getMonth, date.getDate),//represents the day
         saldo: 0
+        */
       }],//array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
     mostRecent: {
       type: '',
@@ -48,15 +50,19 @@ let AppController = (function() {
   return {
   // Setting data into local storage
      storeData: function () {
+       if (typeof(Storage) !== 'undefined') {
        localStorage.setItem("data", JSON.stringify(data));
+     }
      },
 
      // Getting data from local storage
      getStoredData: function () {
+       if (typeof(Storage) !== 'undefined') {
        var localData = JSON.parse(localStorage.getItem('data'));
        //make backup
        localStorage.setItem('backup', JSON.stringify(localData));
        return localData;
+     } // else do nothing
      },
      //update Data to work with
      updateData: function (storedData) {
@@ -66,7 +72,7 @@ let AppController = (function() {
        data.mostRecent.time = new Date(data.mostRecent.time);
        data.dailySaldo = storedData.dailySaldo;
        //new data structure:
-       if (   storedData.logs.length > 0) {
+       if (storedData.logs.length > 0) {
        data.logs = storedData.logs;
        for (var i = 0; i < data.logs.length; i++) {
          data.logs[i].date = new Date(data.logs[i].date);
