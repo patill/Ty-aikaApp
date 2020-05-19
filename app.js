@@ -217,14 +217,14 @@ let AppController = (function() {
      },
      printData: function() {
        let myData, printOut;
-       myData = data.logs.sort(function(a, b){return a.date - b.date});
+       myData = data.logs.sort(function(a, b){return b.date - a.date});
        printOut = [];
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
          dailyIn = myData[i].in.sort(function(a,b){return a -b})[0].log;
          dailyInDate = (dailyIn) ? new Date(dailyIn) : -1;
-         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return a -b})[myData[i].out.length -1].log : -1;
-         dailyOutDate = (dailyOut > 0) ? new Date(dailyOut) : -1;
+         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return a -b}) : []; //[myData[i].out.length -1].log
+         dailyOutDate = (dailyOut.length > 0 && dailyOut[dailyOut.length -1].addition) ? new Date(dailyOut[dailyOut.length -1].log) : -1;
          workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOut - dailyIn : '---';
          printLine = [
            `${myData[i].date.getDate()}.${myData[i].date.getMonth() + 1}.${myData[i].date.getFullYear()}`,
@@ -303,23 +303,21 @@ return {
       }
 
       el.innerText = text + '\nSaldosi on ' + AppController.getSaldo();
-      //console.log('Status is ' + )
     },
-    updateWorkingTime: function() {
+    updateSettings: function() {
       //get time from DOM
-
+      
       //Update time to Data
       saveSettings();
     },
     formatLogData: function(array) {
+      //table.classList.add('hidden');
+      if (array.length > 0) {
       let table = document.querySelector(DOMStrings.logTable);
+      let table2 = document.querySelectorAll('td');
+      nodelistForEach(table2, function(el) {return el.remove();})  ;
 
       array.forEach(el => {
-
-        /*
-          let row = '<td>' + el[0] + '</td>' + '<td>' + el[1] + '</td>' + '<td>' + el[2] + '</td>' + '<td>' + el[3] + '</td>' + '<td>' + el[4] + '</td>' ;
-          console.log(row);
-          */
           let rows = document.createElement('TR');
           el.forEach(innerEl => {
             let row = document.createElement('TD');
@@ -327,11 +325,10 @@ return {
             row.appendChild(cell);
             rows.appendChild(row);
           });
-
           table.appendChild(rows);
       });
-      table.classList.toggle('hidden');
-
+      table.classList.remove('hidden');
+      }
     },
     setModal: function() {
       // Get the modal
@@ -401,16 +398,19 @@ let Controller = (function(AppController, UIController) {
       //call function from UIController
       UIController.regLogging('SISÄÄN');
       UIController.status();
+      UIController.formatLogData(AppController.printData());
     };
 
     let ctrAddOut = function() {
       //call function from UIController
       UIController.regLogging('ULOS');
       UIController.status();
+      UIController.formatLogData(AppController.printData());
     };
     let ctrAddOwnOut = function() {
       UIController.regLogging('ULOS','OAS')
       UIController.status();
+      UIController.formatLogData(AppController.printData());
     }
   let setNow = function () {
     AppController.setTime();
@@ -465,6 +465,7 @@ let Controller = (function(AppController, UIController) {
 
       loadData();
       setupEventListeners();
+      UIController.formatLogData(AppController.printData());
     }
   }
 

@@ -57,6 +57,35 @@ padding: 5px;
 
 }
 
+/* Table settings */
+.history {
+  max-width: 400px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.history-caption{
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.history-caption td, .history-caption th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.history-caption tr:nth-child(even){background-color: #f2f2f2;}
+
+.history-caption tr:hover {background-color: #ddd;}
+
+.history-caption th {
+  padding-top:6px;
+  padding-bottom: 6px;
+  text-align: center;
+  background-color: #e67300;
+  color: white;
+}
+
 /* The Modal (background) */
 .settings {
   display: none; /* Hidden by default */
