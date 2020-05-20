@@ -36,18 +36,23 @@
       <div id="modal-settings" class="settings">
         <div class="modal-content">
           <span class="close">&times;</span>
-
+        <div class="work-parameters">
+        <form>
         <label for="working-time-input">Työaika/pv</label>
-        <input type="time" name="Työaika" id="working-time-input" class="working-time-input" value="07:21">
+        <input type="time" name="Työaika" id="working-time-input" class="working-time-input" value="07:21"><br>
         <label for="working-time-percent">Työaika-%</label>
-        <input type="number" id="working-time-percent" class="working-time-percent" name="Työaika-%" value="100" step="1" min="1" max="100">
+        <input type="number" id="working-time-percent" class="working-time-percent" name="Työaika-%" value="100" step="1" min="1" max="100"><br>
+        <label for="starting-saldo">Alkusaldo</label>
+        <input type="time"   id="starting-saldo" class="working-time-saldo" value="0:0"><br>
         <input type="submit" class="button" name="Tallenna" value="Tallenna" id="settings-submit">
+        </form>
+        </div>
 
         <div class="loging-correction">
           <h3>Korjaa kirjaus</h3>
           <form>
           <label for="correction-date">Päivämäärä</label>
-          <input type="date" name="" required id="correction-date" value="">
+          <input type="date" name="" required id="correction-date" value=""><br>
           <label for="correction-time">Aika</label>
           <input type="time" name="" required id="correction-time" value="">
           <p for="correction-type">Tyyppi</p>
