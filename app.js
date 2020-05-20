@@ -71,6 +71,7 @@ let AppController = (function() {
        data.mostRecent = storedData.mostRecent;
        data.mostRecent.time = new Date(data.mostRecent.time);
        data.dailySaldo = storedData.dailySaldo;
+       data.startingSaldo = storedData.startingSaldo;
        //new data structure:
        if (storedData.logs.length > 0) {
        data.logs = storedData.logs;
@@ -216,7 +217,17 @@ let AppController = (function() {
        if (minutes < 10) {
          minutes = '0' + minutes;
        }
-       return hours.toString() + ':' + minutes;
+       if (Math.abs(hours) < 10) {
+         if (hours < 0) {
+           hours = '-0' + Math.abs(hours).toString();
+         } else {
+          hours = '0' + hours;
+         }
+
+       }
+
+         return hours.toString() + ':' + minutes;
+
      },
      printData: function() {
        let myData, printOut;
@@ -240,6 +251,10 @@ let AppController = (function() {
          printOut.push(printLine);
        }
        return printOut;
+     },
+     applySettings: function(workingTime, startingSaldo) {
+       data.workingTime = this.toMS(workingTime);
+       data.startingSaldo = startingSaldo;
      },
      testing: function() {
        console.log(data);
@@ -266,38 +281,24 @@ let UIController = (function() {
     modal: '#modal-settings',
     modalButton: '#open-settings',
     modalClose: 'close',
-
+    status: 'status',
     logTable: '.history-caption',
     workingTimeInput: '#working-time-input',
     workingTimePercent: '#working-time-percent',
-    startingSaldo: '#starting-saldo',
+    workingTimeSaldo: '#starting-saldo',
     settingsSubmit: '#settings-submit'
   };
-  let updatePercent = function() {
-
-  };
   let saveSettings = function() {
-    let percents;
-    percents = document.querySelector(DOMStrings.workingTimePercent);
-    console.log(percents.value);
-    percents.addEventListener('blur', calcTime());
     //save changes to working time
-    document.querySelector(DOMStrings.workingTimeInput)
+    let workingTime = document.querySelector(DOMStrings.workingTimeInput).value;
+    let startingSaldo = document.querySelector(DOMStrings.workingTimeSaldo).value;
+    AppController.applySettings(workingTime,startingSaldo);
   };
-/*
-  let calcTime = function(percent){
-   return  ((AppController.toMS(7:21) * percent) / 100);
-  };
-*/
+  let reset = function() {
+    document.querySelector(DOMStrings.workingTimeInput).value = '07:21';
+    document.querySelector(DOMStrings.workingTimePercent).value = 100;
+  }
 return {
-  getInput: function () {
-      return {
-        //this can be used to add other types of loggings at a later time
-        //type: document.querySelector(DOMStrings.inputType).value, // Will be either SISÄÄN or ULOS
-        //description: document.querySelector(DOMStrings.inputDescription).value,
-        //value: parseFloat(document.querySelector(DOMStrings.inputValue).value),
-      };
-    },
     getDOMStrings: function() {
       return DOMStrings;
     },
@@ -311,7 +312,7 @@ return {
     },
     //Shows if the user is IN or OUT
     status: function() {
-      el = document.getElementById('status');
+      el = document.getElementById(DOMStrings.status);
       if (AppController.mostRecentLogging().type === 'SISÄÄN') {
         text = 'Olet kirjautunut sisään.';
       } else if (AppController.mostRecentLogging().type === 'ULOS') {
@@ -324,7 +325,18 @@ return {
       //get time from DOM
 
       //Update time to Data
-      saveSettings();
+      //saveSettings();
+    },
+    updateTime: function() {
+      let percent = document.querySelector(DOMStrings.workingTimePercent).value;
+      let time = document.querySelector(DOMStrings.workingTimeInput);
+      time.value = AppController.toHours((AppController.toMS('7:21') * percent) / 100);
+
+    },
+    updatePercent: function() {
+      let percent = document.querySelector(DOMStrings.workingTimePercent);
+      let time = document.querySelector(DOMStrings.workingTimeInput).value;
+      percent.value = Math.round((AppController.toMS(time) / AppController.toMS('7:21')) * 100);
     },
     formatLogData: function(array) {
       //table.classList.add('hidden');
@@ -367,7 +379,7 @@ return {
       // When the user clicks on <span> (x), close the modal
       span.onclick = function() {
         modal.style.display = "none";
-        saveSettings();
+        reset();
       }
 
       // When the user clicks anywhere outside of the modal, close it
@@ -378,8 +390,10 @@ return {
       }
       //Close modal also with the Tallenna button
       close.onclick = function() {
-        modal.style.display = 'none';
         saveSettings();
+        AppController.storeData();
+        modal.style.display = 'none';
+
       }
     }
   }
@@ -407,6 +421,13 @@ let Controller = (function(AppController, UIController) {
         ctrlAddItem();
       };
       */
+      //click for saving settings
+      document.querySelector(DOM.settingsSubmit).addEventListener('click', UIController.updateSettings);
+
+      document.querySelector(DOM.workingTimePercent).addEventListener('blur', UIController.updateTime);
+      document.querySelector(DOM.workingTimePercent).addEventListener('click', UIController.updateTime);
+
+      document.querySelector(DOM.workingTimeInput).addEventListener('blur', UIController.updatePercent);
 
     };
 
