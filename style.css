@@ -5,6 +5,30 @@ body {
     position: relative;
     height: 100vh;
     font-weight: 400;
+    margin: 0;
+}
+
+header {
+  margin-top: 20px;
+  background-color: #e67300;
+}
+
+h1 {
+  padding: 10px;
+  margin-bottom: 0;
+  text-align: center;
+  color: white;
+}
+
+.wrapper {
+  align-content: center;
+  background-color: #f0f0f5;
+}
+
+.wrapper-inner {
+  margin: 0 20%;
+  max-width: 600px;
+  padding-bottom: 40px;
 }
 
 .hidden {
