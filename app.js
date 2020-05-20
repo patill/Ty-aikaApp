@@ -174,11 +174,11 @@ let AppController = (function() {
           //write it into memory
           data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
-          workingDay = workingDay - ownSaldo;
-          console.log(this.toHours(workingDay));
+          //workingDay = workingDay - ownSaldo;
+          //console.log(this.toHours(workingDay));
         }
        //compare to workingTime
-       let saldoToday = workingDay - data.workingTime;
+       let saldoToday = (workingDay - data.workingTime) - ownSaldo;
 
        //write saldoToday into memory
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
@@ -213,6 +213,9 @@ let AppController = (function() {
      toHours: function(time) {
        let hours = parseInt(time / 1000 / 60 / 60);
        let minutes = Math.abs(Math.round(time / 1000 / 60 % 60));
+       if (minutes < 10) {
+         minutes = '0' + minutes;
+       }
        return hours.toString() + ':' + minutes;
      },
      printData: function() {
@@ -221,15 +224,15 @@ let AppController = (function() {
        printOut = [];
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
-         dailyIn = myData[i].in.sort(function(a,b){return a -b})[0].log;
+         dailyIn = myData[i].in.sort(function(a,b){return a.log -b.log})[0].log;
          dailyInDate = (dailyIn) ? new Date(dailyIn) : -1;
-         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return a -b}) : []; //[myData[i].out.length -1].log
-         dailyOutDate = (dailyOut.length > 0 && dailyOut[dailyOut.length -1].addition) ? new Date(dailyOut[dailyOut.length -1].log) : -1;
-         workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOut - dailyIn : '---';
+         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return b.log -a.log}) : []; //[myData[i].out.length -1].log
+         dailyOutDate = (dailyOut.length > 0 ) ? new Date(dailyOut[0].log) : -1;
+         workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOutDate - dailyInDate : '---';
          printLine = [
            `${myData[i].date.getDate()}.${myData[i].date.getMonth() + 1}.${myData[i].date.getFullYear()}`,
-           (dailyIn) ? dailyIn.toLocaleTimeString() : '---',
-           (dailyOut > 0) ? dailyOut.toLocaleTimeString() : '---',
+           (dailyIn) ? dailyInDate.toLocaleTimeString() : '---',
+           (dailyOutDate > 0) ? dailyOutDate.toLocaleTimeString() : '---',
            (!isNaN(workingDay)) ? this.toHours(workingDay) : '---',//työpäivän pituus
            this.toHours(myData[i].saldo),
            (myData[i].ownSaldo) ? this.toHours(myData[i].ownSaldo) : '---'
@@ -263,16 +266,29 @@ let UIController = (function() {
     modal: '#modal-settings',
     modalButton: '#open-settings',
     modalClose: 'close',
-    workingTimeString: '#working-time-input',
-    workingPercentString: '#working-time-percent',
-    logTable: '.history-caption'
+
+    logTable: '.history-caption',
+    workingTimeInput: '#working-time-input',
+    workingTimePercent: '#working-time-percent',
+    startingSaldo: '#starting-saldo',
+    settingsSubmit: '#settings-submit'
+  };
+  let updatePercent = function() {
+
   };
   let saveSettings = function() {
-    //save changes to working time and percents
-
+    let percents;
+    percents = document.querySelector(DOMStrings.workingTimePercent);
+    console.log(percents.value);
+    percents.addEventListener('blur', calcTime());
+    //save changes to working time
+    document.querySelector(DOMStrings.workingTimeInput)
   };
-
-
+/*
+  let calcTime = function(percent){
+   return  ((AppController.toMS(7:21) * percent) / 100);
+  };
+*/
 return {
   getInput: function () {
       return {
@@ -306,7 +322,7 @@ return {
     },
     updateSettings: function() {
       //get time from DOM
-      
+
       //Update time to Data
       saveSettings();
     },
