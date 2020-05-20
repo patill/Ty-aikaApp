@@ -29,13 +29,14 @@ let AppController = (function() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
   let countOwnOutSaldo = function(obj) {
+    let outTimeArray = [0];
     if (obj.out.find(el => el.type)) {
     let inArray = obj.in.map(el => el.log);
     console.log(inArray);
     let outArray = obj.out.filter(el => el.type === 'OAS').map(el => el.log);
     console.log(outArray);
     //find next bigger entry from out in the in-array, then do in-entry - out-entry
-    let outTimeArray = [0];
+
     for (let i = 0; i < outArray.length; i++) {
       let nextIn = inArray.find(el => el > outArray[i]);
       //nextIn can be undefined, if user has not yet come back from OwnOut
