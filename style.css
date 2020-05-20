@@ -24,6 +24,8 @@ transition: border 0.3s;
 text-align: center;
 display: inline-block;
 padding: 5px;
+border-radius: 2px;
+font-weight:600;
 }
 
 .working-time-input, .working-time-percent {
@@ -62,7 +64,7 @@ padding: 5px;
 }
 
 .tyoaika-button {
-
+  margin-bottom: 10px;
 }
 
 /* Table settings */
@@ -118,6 +120,7 @@ padding: 5px;
   border: 1px solid #888;
   width: 250px;/* Could be more or less, depending on screen size */
   max-width: 100%;
+  border-radius: 8px;
 }
 
 /* The Close Button */
