@@ -22,6 +22,7 @@ let AppController = (function() {
     },
     workingTime: 26460000,
     saldo: 0,
+    startingSaldo: 0,
     dailySaldo: [] //array of objects with date and saldo pairs
   };
 
@@ -152,7 +153,7 @@ let AppController = (function() {
        return mostRecentOut;
      },
      calcSaldo: function() {//should be called only after logout
-       let obj, mostRecentOut, firstLoginToday, workingDay, ownSaldo, ownSaldoArray;
+       let obj, mostRecentOut, firstLoginToday, workingDay, ownSaldo, ownSaldoArray, totalSaldo, saldoToday;
        obj = this.mostRecentDay(0);
        if (obj.in.length > 0 ) {
        //get most recent logout.
@@ -168,6 +169,8 @@ let AppController = (function() {
        //take into account also login and logouts in between and their reasons
        ownSaldoArray = countOwnOutSaldo(obj);
        console.log(ownSaldoArray);
+       //Prepare own saldo, so it is not undefined
+       ownSaldo = 0;
        const arraySum = arr => arr.reduce((a,b) => a + b, 0);
        //calc only if own loggings have happened:
        if (ownSaldoArray) {
@@ -177,23 +180,34 @@ let AppController = (function() {
           data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
           //workingDay = workingDay - ownSaldo;
-          //console.log(this.toHours(workingDay));
+          //
         }
        //compare to workingTime
-       let saldoToday = (workingDay - data.workingTime) - ownSaldo;
-
+       saldoToday = 0;
+       if (workingDay || !isNaN(workingDay)) {
+         saldoToday = (workingDay - data.workingTime) - ownSaldo;
+       }
        //write saldoToday into memory
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
        //take old saldo and add/remove new saldo
-       let totalSaldo;
+       totalSaldo = 0;
+       //totalSaldo should be sum of all daily saldos - startingSaldo
+       for (i in data.logs) {
+         totalSaldo += data.logs[i].saldo;
+       }
+       data.saldo = totalSaldo + data.startingSaldo;
+       console.log("Koko Saldo: " + totalSaldo);
+       console.log("Oikea saldo: " + totalSaldo + data.startingSaldo);
+
+       /*
        //get second last day:
        if (data.logs.length > 1) {
        let yesterday = this.mostRecentDay(1)
        totalSaldo = saldoToday + yesterday.saldo;
      } else {totalSaldo = saldoToday;}
        data.saldo = totalSaldo;
-
-      }
+       */
+     }
      },
      getSaldo: function() {
        //let obj = this.mostRecentDay(0);
@@ -250,7 +264,7 @@ let AppController = (function() {
      },
      applySettings: function(workingTime, startingSaldo) {
        data.workingTime = this.toMS(workingTime);
-       data.startingSaldo = startingSaldo;
+       data.startingSaldo = this.toMS(startingSaldo);
      },
      testing: function() {
        console.log(data);
