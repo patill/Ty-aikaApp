@@ -200,7 +200,12 @@ let AppController = (function() {
        for (i in data.logs) {
          totalSaldo += data.logs[i].saldo;
        }
+       if (data.startingSaldo) {
        data.saldo = parseInt(totalSaldo) + parseInt(data.startingSaldo);
+     } else {
+       data.saldo = parseInt(totalSaldo);
+     }
+
        console.log("Koko Saldo: " + totalSaldo);
        console.log("Oikea saldo: " + (totalSaldo + data.startingSaldo));
 
