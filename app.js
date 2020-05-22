@@ -88,6 +88,11 @@ let AppController = (function() {
        }
       }
      },
+     updateStartingSaldo: function() {
+       let DOM;
+       DOM = UIController.getDOMStrings();
+       document.querySelector(DOM.workingTimeSaldo).value = this.toHours(data.startingSaldo);
+     },
      getTime: function() {
        //adds zeros to the output, if needed
        function checkTime(i) {
@@ -195,9 +200,9 @@ let AppController = (function() {
        for (i in data.logs) {
          totalSaldo += data.logs[i].saldo;
        }
-       data.saldo = totalSaldo + data.startingSaldo;
+       data.saldo = parseInt(totalSaldo) + parseInt(data.startingSaldo);
        console.log("Koko Saldo: " + totalSaldo);
-       console.log("Oikea saldo: " + totalSaldo + data.startingSaldo);
+       console.log("Oikea saldo: " + (totalSaldo + data.startingSaldo));
 
        /*
        //get second last day:
@@ -385,6 +390,7 @@ return {
       // When the user clicks on the button, open the modal
       btn.onclick = function() {
         modal.style.display = "block";
+        AppController.updateStartingSaldo();
       }
 
       // When the user clicks on <span> (x), close the modal
