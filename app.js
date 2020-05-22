@@ -214,21 +214,16 @@ let AppController = (function() {
      },
      toHours: function(time) {
        let hours = parseInt(time / 1000 / 60 / 60);
-       let minutes = Math.abs(Math.round(time / 1000 / 60 % 60));
-       if (minutes < 10) {
-         minutes = '0' + minutes;
-       }
+       let minutes = Math.round(time / 1000 / 60 % 60);
+
        if (Math.abs(hours) < 10) {
-         if (hours < 0) {
+         if (hours < 0 || minutes < 0) {
            hours = '-0' + Math.abs(hours).toString();
          } else {
           hours = '0' + hours;
          }
-
        }
-
-         return hours.toString() + ':' + minutes;
-
+         return (Math.abs(minutes) < 10) ? hours.toString() + ':' + '0' + Math.abs(minutes) : hours.toString() + ':' + Math.abs(minutes);
      },
      printData: function() {
        let myData, printOut;
@@ -313,6 +308,7 @@ return {
     },
     //Shows if the user is IN or OUT
     status: function() {
+      let el, text;
       el = document.getElementById(DOMStrings.status);
       if (AppController.mostRecentLogging().type === 'SISÄÄN') {
         text = 'Olet kirjautunut sisään.';
