@@ -169,11 +169,11 @@ let AppController = (function() {
 
        // calculate difference
        workingDay = mostRecentOut - firstLoginToday;
-       console.log(this.toHours(workingDay));
+       //console.log(this.toHours(workingDay));
 
        //take into account also login and logouts in between and their reasons
        ownSaldoArray = countOwnOutSaldo(obj);
-       console.log(ownSaldoArray);
+       //console.log(ownSaldoArray);
        //Prepare own saldo, so it is not undefined
        ownSaldo = 0;
        const arraySum = arr => arr.reduce((a,b) => a + b, 0);
@@ -207,7 +207,7 @@ let AppController = (function() {
      }
 
        console.log("Koko Saldo: " + totalSaldo);
-       console.log("Oikea saldo: " + (totalSaldo + data.startingSaldo));
+       console.log("Koko saldo miinus aloitussaldo: " + (totalSaldo + data.startingSaldo));
 
        /*
        //get second last day:
@@ -238,7 +238,7 @@ let AppController = (function() {
      },
      toHours: function(time) {
        let hours = parseInt(time / 1000 / 60 / 60);
-       let minutes = Math.round(time / 1000 / 60 % 60);
+       let minutes = parseInt(time / 1000 / 60 % 60);
 
        if (Math.abs(hours) < 10) {
          if (hours < 0 || minutes < 0) {
