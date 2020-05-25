@@ -93,6 +93,12 @@ let AppController = (function() {
        DOM = UIController.getDOMStrings();
        document.querySelector(DOM.workingTimeSaldo).value = this.toHours(data.startingSaldo);
      },
+     updateWorkingTimePercent: function() {
+       let DOM;
+       DOM = UIController.getDOMStrings();
+       document.querySelector(DOM.workingTimeInput).value = this.toHours(data.workingTime);
+       UIController.updatePercent();
+     },
      getTime: function() {
        //adds zeros to the output, if needed
        function checkTime(i) {
@@ -396,6 +402,7 @@ return {
       btn.onclick = function() {
         modal.style.display = "block";
         AppController.updateStartingSaldo();
+        AppController.updateWorkingTimePercent();
       }
 
       // When the user clicks on <span> (x), close the modal
