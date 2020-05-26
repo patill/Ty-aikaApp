@@ -17,23 +17,20 @@
       </header>
       <div class="wrapper">
         <div class="wrapper-inner">
-      <div class="testing-time-input hidden">
-        <label for="time-input">TESTING: SYÖTÄ PÄIVÄ </label>
-        <input type="date" id="time-input" name="" value="">
-      </div>
+
       <div class="time-chooser">
         <label for="tyoaika">Aika</label>
         <div type="time" name="tyoaika" class="tyoaika" id="tyoaika"></div><br>
 
         <input type="submit" id="sis" value="SISÄÄN" class="tyoaika-button">
-        <input type="submit" id= "ulos" name="" value="ULOS" class="tyoaika-button"><br>
-        <input type="submit" id= "OAU" name="Oma asia ulos" value="Oma asia ulos" class="tyoaika-button">
+        <input type="submit" id="ulos" name="" value="ULOS" class="tyoaika-button"><br>
+        <input type="submit" id="OAU" name="Oma asia ulos" value="Oma asia ulos" class="tyoaika-button">
       </div>
       <div>
         <p id="status"></p>
       </div>
       <div class="settings-chooser">
-        <div class="button" id="open-settings">Vaihda työaika</div>
+        <div class="button" id="open-settings">Asetukset</div>
       </div>
       <!-- settings modaalimuodossa -->
       <div id="modal-settings" class="settings">
@@ -55,15 +52,15 @@
           <h3>Korjaa kirjaus</h3>
           <form>
           <label for="correction-date">Päivämäärä</label>
-          <input type="date" name="" required id="correction-date" value=""><br>
+          <input type="date"  required id="correction-date" ><br>
           <label for="correction-time">Aika</label>
-          <input type="time" name="" required id="correction-time" value="">
+          <input type="time"  required id="correction-time" >
           <p for="correction-type">Tyyppi</p>
           <input type="radio" name="type" required id="radio-sis" value="SISÄÄN">
           <label for="radio-sis">SISÄÄN</label><br>
           <input type="radio" name="type" required id="radio-ul" value="ULOS">
           <label for="radio-ul">ULOS</label><br>
-          <input type="radio" name="type" required id= "radio-oas" value="Oma asia ulos">
+          <input type="radio" name="type" required id="radio-oas" value="Oma asia ulos">
           <label for="radio-oas">Oma asia ulos</label><br>
           <input type="submit" class="button" name="" value="Tallenna">
           </form>
