@@ -1,3 +1,10 @@
+// Check if site's storage has been marked as persistent
+if (navigator.storage && navigator.storage.persist) {
+  const isPersisted = await navigator.storage.persisted();
+  console.log(`Persisted storage granted: ${isPersisted}`);
+}
+
+
 
 let AppController = (function() {
   let date = new Date();
