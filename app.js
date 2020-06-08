@@ -267,6 +267,7 @@ let AppController = (function() {
        let myData, printOut;
        myData = data.logs.sort(function(a, b){return b.date - a.date});
        printOut = [];
+       if (myData && myData.length > 0) {
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
          dailyIn = myData[i].in.sort(function(a,b){return a.log -b.log})[0].log;
@@ -285,6 +286,7 @@ let AppController = (function() {
          printOut.push(printLine);
        }
        return printOut;
+      }
      },
      applySettings: function(workingTime, startingSaldo) {
        data.workingTime = this.toMS(workingTime);
