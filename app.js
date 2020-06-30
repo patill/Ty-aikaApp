@@ -277,7 +277,7 @@ let AppController = (function() {
          workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOutDate - dailyInDate : '---';
          printLine = [
            `${myData[i].date.getDate()}.${myData[i].date.getMonth() + 1}.${myData[i].date.getFullYear()}`,
-           (dailyIn) ? dailyInDate.toLocaleTimeString() : '---',
+           (dailyInDate > 0) ? dailyInDate.toLocaleTimeString() : '---',
            (dailyOutDate > 0) ? dailyOutDate.toLocaleTimeString() : '---',
            (!isNaN(workingDay)) ? this.toHours(workingDay) : '---',//työpäivän pituus
            this.toHours(myData[i].saldo),
