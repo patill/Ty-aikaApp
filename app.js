@@ -270,8 +270,8 @@ let AppController = (function() {
        if (myData && myData.length > 0) {
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
-         dailyIn = myData[i].in.sort(function(a,b){return a.log -b.log})[0].log;
-         dailyInDate = (dailyIn) ? new Date(dailyIn) : -1;
+         dailyIn = (myData[i].in.length > 0) ? myData[i].in.sort(function(a,b){return a.log -b.log}) : [];
+         dailyInDate = (dailyIn.length > 0) ? new Date(dailyIn[0].log) : -1;
          dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return b.log -a.log}) : []; //[myData[i].out.length -1].log
          dailyOutDate = (dailyOut.length > 0 ) ? new Date(dailyOut[0].log) : -1;
          workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOutDate - dailyInDate : '---';
