@@ -13,8 +13,8 @@
       "sizes": "512x512"
     }
   ],
-  "theme_color": "#303F9F",
-  "background_color": "#303F9F",
+  "theme_color": "#e67300",
+  "background_color": "#e67300",
   "start_url": "./Tyo-aikaApp/",
-  "display": "minimal-ui"
+  "display": "standalone"
 }
