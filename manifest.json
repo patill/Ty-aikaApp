@@ -15,6 +15,6 @@
   ],
   "theme_color": "#e67300",
   "background_color": "#e67300",
-  "start_url": "./Tyo-aikaApp/",
+  "start_url": "./",
   "display": "standalone"
 }
