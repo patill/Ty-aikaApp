@@ -322,7 +322,9 @@ let UIController = (function() {
     workingTimeInput: '#working-time-input',
     workingTimePercent: '#working-time-percent',
     workingTimeSaldo: '#starting-saldo',
-    settingsSubmit: '#settings-submit'
+    settingsSubmit: '#settings-submit',
+    historyTable: '.history',
+    shareButton: '.share-button'
   };
   let saveSettings = function() {
     //save changes to working time
@@ -333,7 +335,19 @@ let UIController = (function() {
   let reset = function() {
     document.querySelector(DOMStrings.workingTimeInput).value = '07:21';
     document.querySelector(DOMStrings.workingTimePercent).value = 100;
-  }
+  };
+
+      //error function for webshare function
+      function logText(message, isError) {
+        if (isError)
+          console.error(message);
+        else
+          console.log(message);
+      }
+  
+      function logError(message) {
+        logText(message, true);
+      }
 return {
     getDOMStrings: function() {
       return DOMStrings;
@@ -377,7 +391,7 @@ return {
     },
     formatLogData: function(array) {
       //table.classList.add('hidden');
-      if (array.length > 0) {
+      if (array && array.length > 0) {
       let table = document.querySelector(DOMStrings.logTable);
       let table2 = document.querySelectorAll('td');
       nodelistForEach(table2, function(el) {return el.remove();})  ;
@@ -393,6 +407,36 @@ return {
           table.appendChild(rows);
       });
       table.classList.remove('hidden');
+      }
+    },
+
+    webShare: async function() {
+      if (navigator.share === undefined) {
+        logError('Error: Unsupported feature: navigator.share()');
+        return;
+      }
+  
+      const text_input = AppController.printData().join('\n').replace(/,/g,'\t');
+      const tableTitle = 'Päivä\t Sisään\t Ulos\t Työpäivä\t Saldo\t Oma aika\n';
+      let table = tableTitle;
+      table += text_input;
+      const title = 'Työajanseuranta';
+      const text = table;
+      const files = [new File([table], 'loggings.csv', {type : 'text/csv'})];
+      //const text = text_input.disabled ? undefined : text_input.innerText;
+      //const url = url_input.disabled ? undefined : url_input.value;
+      //const files = file_input.disabled ? undefined : file_input.files;
+      if (files && files.length > 0) {
+        if (!navigator.canShare || !navigator.canShare({files})) {
+          logError('Error: Unsupported feature: navigator.canShare()');
+          return;
+        }
+      }
+      try {
+        await navigator.share({title: title, text: text, files: files});
+        logText('Successfully sent share');
+      } catch (error) {
+        logError('Error sharing: ' + error);
       }
     },
     setModal: function() {
@@ -454,12 +498,7 @@ let Controller = (function(AppController, UIController) {
 
     document.querySelector(DOM.buttonOAOUT).addEventListener('click', ctrAddOwnOut);
 
-    /*
-    document.addEventListener('keypress', function(event) {
-      if (event.keyCode === 13 || event.which === 13) {//for older browsers the second version
-        ctrlAddItem();
-      };
-      */
+
       //click for saving settings
       document.querySelector(DOM.settingsSubmit).addEventListener('click', UIController.updateSettings);
 
@@ -468,7 +507,32 @@ let Controller = (function(AppController, UIController) {
 
       document.querySelector(DOM.workingTimeInput).addEventListener('blur', UIController.updatePercent);
 
+      //Share button
+      document.querySelector(DOM.shareButton).addEventListener('click', UIController.webShare);
+
+
+      if (navigator.share === undefined) {
+        if (window.location.protocol === 'http:') {
+          // navigator.share() is only available in secure contexts.
+          window.location.replace(window.location.href.replace(/^http:/, 'https:'));
+        } else {
+          logError('Error: You need to use a browser that supports this draft ' +
+                   'proposal.');
+        }
+      }
     };
+
+    //error function for webshare function
+    function logText(message, isError) {
+      if (isError)
+        console.error(message);
+      else
+        console.log(message);
+    }
+
+    function logError(message) {
+      logText(message, true);
+    }
 
     let ctrAddIn = function() {
       //call function from UIController
@@ -522,9 +586,15 @@ let Controller = (function(AppController, UIController) {
   };
 
   let autoLogOut = function() {
-    //log out after 20:15
+    //TODO: log out after 20:15
 
-  }
+  };
+
+
+
+
+
+
 
   return {
     init: function() {
