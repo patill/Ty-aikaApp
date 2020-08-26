@@ -114,7 +114,7 @@ let AppController = (function() {
        document.querySelector(DOM.settingName).value = data.name;
     },
     getName: function() {
-      if (data.name && data.name > 0) {
+      if (data.name && data.name.length > 0) {
         return data.name.trim();
       }
     },
