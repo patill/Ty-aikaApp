@@ -399,13 +399,13 @@ return {
     updateTime: function() {
       let percent = document.querySelector(DOMStrings.workingTimePercent).value;
       let time = document.querySelector(DOMStrings.workingTimeInput);
-      time.value = AppController.toHours((AppController.toMS('7:21') * percent) / 100);
+      time.value = AppController.toHours((AppController.toMS('7:15') * percent) / 100);
 
     },
     updatePercent: function() {
       let percent = document.querySelector(DOMStrings.workingTimePercent);
       let time = document.querySelector(DOMStrings.workingTimeInput).value;
-      percent.value = Math.round((AppController.toMS(time) / AppController.toMS('7:21')) * 100);
+      percent.value = Math.round((AppController.toMS(time) / AppController.toMS('7:15')) * 100);
     },
     formatLogData: function(array) {
       //table.classList.add('hidden');
