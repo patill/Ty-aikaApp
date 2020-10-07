@@ -425,7 +425,7 @@ let UIController = (function() {
     correctionIn: '#radio-sis',
     correctionOut: '#radio-ul',
     correctionOAS: '#radio-oas',
-    correctionShowButton: '#show-correction',
+    correctionShow: '#show-correction',
     correctionDIV: '.logging-correction'
   };
   let saveSettings = function() {
@@ -596,7 +596,7 @@ return {
       const correctionButton = document.querySelector(DOMStrings.buttonSaveCorrection);
 
       //Loggin correction show button
-      const correctionShowButton = document.querySelector(DOMStrings.correctionShowButton);
+      const correctionShowButton = document.querySelector(DOMStrings.correctionShow);
 
       // When the user clicks on the button, open the modal
       btn.onclick = function() {
@@ -627,11 +627,13 @@ return {
       }
 
       //Show the logging changing part
+      if (correctionShowButton) {
       correctionShowButton.onclick = function() {
         correctionShowButton.style.display = 'none';
         loggingCorrectionDIV.style.display = 'block';
+        }
       }
-
+      
       //Save changed logging and close modal
       correctionButton.onclick = function() {
         const correction = saveCorrection();
