@@ -103,7 +103,7 @@ let AppController = (function() {
        const DOM = UIController.getDOMStrings();
        data.startingSaldo < 0 ? document.querySelector(DOM.workingTimeSaldoType).value = '-' : document.querySelector(DOM.workingTimeSaldoType).value = '+';
        document.querySelector(DOM.workingTimeSaldo).value = this.toHours(Math.abs(data.startingSaldo));
-       this.calcSaldo();
+       //this.calcSaldo();
      },
      updateWorkingTimePercent: function() {
        const DOM = UIController.getDOMStrings();
@@ -236,6 +236,7 @@ let AppController = (function() {
       //write saldoToday into memory
       data.logs[data.logs.findIndex(el => el.date.getTime() === item.date.getTime())].saldo = saldoToday;
       
+      /*
       //take old saldo and add/remove new saldo
       totalSaldo = 0;
       //totalSaldo should be sum of all daily saldos - startingSaldo
@@ -248,7 +249,8 @@ let AppController = (function() {
       data.saldo = parseInt(totalSaldo);
     }
       console.log("Koko Saldo: " + totalSaldo);
-      console.log("Koko saldo miinus aloitussaldo: " + (totalSaldo + data.startingSaldo));    
+      console.log("Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo)); 
+      */   
     }
 
     },
@@ -308,6 +310,8 @@ let AppController = (function() {
        }
        //write saldoToday into memory
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
+       
+       /*
        //take old saldo and add/remove new saldo
        totalSaldo = 0;
        //totalSaldo should be sum of all daily saldos - startingSaldo
@@ -316,17 +320,19 @@ let AppController = (function() {
        }
        //starting saldo gets used only in getSaldo function
        data.saldo = parseInt(totalSaldo);
-
+       */
 
        console.log("Koko Saldo: " + totalSaldo);
-       console.log("Koko saldo miinus aloitussaldo: " + (totalSaldo + data.startingSaldo));
+       console.log("Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo));
      }
      },
      getSaldo: function() {
-       //let obj = this.mostRecentDay(0);
-       //return this.toHours(obj.saldo);
+       let totalSaldo = 0;
+       for (i in data.logs) {
+         totalSaldo += data.logs[i].saldo;
+       }
        //take startingSaldo only here into account
-       return this.toHours(data.saldo + data.startingSaldo);
+       return this.toHours(totalSaldo + data.startingSaldo);
      },
      setWorkingTime: function(time) {
        data.workingTime = time;
@@ -434,9 +440,10 @@ let UIController = (function() {
   };
   let saveSettings = function() {
     //save changes to working time
-    let workingTime = document.querySelector(DOMStrings.workingTimeInput).value;
+    const workingTime = document.querySelector(DOMStrings.workingTimeInput).value;
     let startingSaldo = document.querySelector(DOMStrings.workingTimeSaldoType).value;
-    startingSaldo += document.querySelector(DOMStrings.workingTimeSaldo).value;
+    const startingSaldoNumber = document.querySelector(DOMStrings.workingTimeSaldo).value
+    startingSaldo += startingSaldoNumber ? startingSaldoNumber : '00:00';
     //save name
     let myName = document.querySelector(DOMStrings.settingName).value;
     AppController.applySettings(workingTime,startingSaldo,myName);
@@ -626,6 +633,7 @@ return {
       close.onclick = function() {
         saveSettings();
         AppController.storeData();
+        UIController.status();
         modal.style.display = 'none';
         return false; //prevents page from reloading
       }
@@ -649,8 +657,9 @@ return {
           p.innerText = 'Täytä kaikki kentät!';
           correctionButton.parentNode.appendChild(p);
         }
-        AppController.storeData();
+        UIController.status();
         UIController.formatLogData(AppController.printData());
+        AppController.storeData();
         return false;
       }
 
