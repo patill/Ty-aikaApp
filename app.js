@@ -36,6 +36,10 @@ let AppController = (function() {
     name: ''
   };
 
+  if (debugging) {
+    window.data = data;
+  }
+
   let calcDayString = function(now) {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
@@ -361,21 +365,36 @@ let AppController = (function() {
          return (Math.abs(minutes) < 10) ? hours.toString() + ':' + '0' + Math.abs(minutes) : hours.toString() + ':' + Math.abs(minutes);
      },
      printData: function() {
-       let myData, printOut;
-       myData = data.logs.sort(function(a, b){return b.date - a.date});
+       let printOut;
+       //get locale of browser
+       const lang = navigator.language;
+       //options for timeFormator
+       const options = {
+        //timeStyle: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+       }
+       //formator for dates
+       const formator = new Intl.DateTimeFormat(lang);
+       const timeFormator = new Intl.DateTimeFormat(lang, options);
+       const myData = data.logs.sort(function(a, b){return b.date - a.date});
+       if (debugging) {
+         console.log(myData);
+         window.myData = myData;
+       }
        printOut = [];
        if (myData && myData.length > 0) {
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
          dailyIn = (myData[i].in.length > 0) ? myData[i].in.sort(function(a,b){return a.log -b.log}) : [];
          dailyInDate = (dailyIn.length > 0) ? new Date(dailyIn[0].log) : -1;
-         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return b.log -a.log}) : []; //[myData[i].out.length -1].log
+         dailyOut = (myData[i].out.length > 0) ? myData[i].out.sort(function(a,b){return b.log -a.log}) : [];
          dailyOutDate = (dailyOut.length > 0 ) ? new Date(dailyOut[0].log) : -1;
          workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOutDate - dailyInDate : '---';
          printLine = [
-           `${myData[i].date.getDate()}.${myData[i].date.getMonth() + 1}.${myData[i].date.getFullYear()}`,
-           (dailyInDate > 0) ? dailyInDate.toLocaleTimeString() : '---',
-           (dailyOutDate > 0) ? dailyOutDate.toLocaleTimeString() : '---',
+           formator.format(myData[i].date),
+           (dailyInDate > 0) ? timeFormator.format(dailyInDate) : '---',
+           (dailyOutDate > 0) ? timeFormator.format(dailyOutDate) : '---',
            (!isNaN(workingDay)) ? this.toHours(workingDay).replace(':', '.') : '---',//työpäivän pituus
            this.toHours(myData[i].saldo).replace(':', '.'),
            (myData[i].ownSaldo) ? this.toHours(myData[i].ownSaldo).replace(':', '.') : '---'
