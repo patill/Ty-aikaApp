@@ -5,7 +5,8 @@ if (navigator.storage && navigator.storage.persist) {
   console.log(`Persisted storage granted: ${isPersisted}`);
 }
 */
-
+//Debugging flag to switch on console printing
+const debugging = true;
 
 let AppController = (function() {
   let date = new Date();
@@ -186,7 +187,9 @@ let AppController = (function() {
        } else {
          OASObj = {log: logTime};
        }
-       console.log(OASObj);
+       if (debugging) {
+         console.log(OASObj);
+       }
        if (type === 'SISÄÄN') {
          item.in.push(OASObj);
        } else if (type === 'ULOS' || type === 'OAS') {
@@ -195,31 +198,40 @@ let AppController = (function() {
       //Now calculate saldo of that day
       //works only if there is already OUT
       let mostRecentOut, firstLoginToday, workingDay, ownSaldo, ownSaldoArray, totalSaldo, saldoToday;
-      
+
       //get most recent logout.
        if (item.out && item.out.length > 0) {
        for (let i = 0; i < item.out.length; i++ )
        {  (mostRecentOut > item.out[i].log) ? mostRecentOut : mostRecentOut = item.out[i].log }
-       console.log(mostRecentOut);
+       if (debugging) {
+         console.log(mostRecentOut);
+       }
       //calculate smallest amount, i.e. the first event in that array
       if (item.in && item.in.length > 0) {
       firstLoginToday  = item.in.sort(function(a,b){return a.log - b.log})[0].log;
-       console.log(firstLoginToday);
+      if (debugging) {
+        console.log(firstLoginToday);
+      }
       // calculate difference
       workingDay = mostRecentOut - firstLoginToday;
       }
-      //console.log(this.toHours(workingDay));
-       console.log('Working day: ' + this.toHours(workingDay));
+      if (debugging) {
+        console.log('Working day: ' + this.toHours(workingDay));
+      }
       //take into account also login and logouts in between and their reasons
       ownSaldoArray = countOwnOutSaldo(item);
-      console.log(ownSaldoArray);
       //Prepare own saldo, so it is not undefined
       ownSaldo = 0;
       const arraySum = arr => arr.reduce((a,b) => a + b, 0);
       //calc only if own loggings have happened:
       if (ownSaldoArray) {
+        if (debugging) {
+          console.log(ownSaldoArray);
+        }
          ownSaldo = arraySum(ownSaldoArray);
-         console.log(this.toHours(ownSaldo));
+         if (debugging) {
+           console.log(this.toHours(ownSaldo));
+         }
          //write it into memory
          data.logs[data.logs.findIndex(el => el.date.getTime() === item.date.getTime())].ownSaldo = ownSaldo;
          //remove sum of ownOut from workingDay
@@ -227,30 +239,12 @@ let AppController = (function() {
          //
        }
        //compare to workingTime
-       //TODO: normal working time has been 7:21 before 1598821200000
-       //TODO: take into account also working time %
       saldoToday = 0;
       if (workingDay || !isNaN(workingDay)) {
         saldoToday = (workingDay - data.workingTime) - ownSaldo;
       }
       //write saldoToday into memory
       data.logs[data.logs.findIndex(el => el.date.getTime() === item.date.getTime())].saldo = saldoToday;
-      
-      /*
-      //take old saldo and add/remove new saldo
-      totalSaldo = 0;
-      //totalSaldo should be sum of all daily saldos - startingSaldo
-      for (i in data.logs) {
-        totalSaldo += data.logs[i].saldo;
-      }
-      if (data.startingSaldo) {
-      data.saldo = parseInt(totalSaldo);// + parseInt(data.startingSaldo);
-    } else {
-      data.saldo = parseInt(totalSaldo);
-    }
-      console.log("Koko Saldo: " + totalSaldo);
-      console.log("Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo)); 
-      */   
     }
 
     },
@@ -296,7 +290,9 @@ let AppController = (function() {
        //calc only if own loggings have happened:
        if (ownSaldoArray) {
           ownSaldo = arraySum(ownSaldoArray);
-          console.log(this.toHours(ownSaldo));
+          if (debugging) {
+            console.log(this.toHours(ownSaldo));
+          }
           //write it into memory
           data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
@@ -310,7 +306,7 @@ let AppController = (function() {
        }
        //write saldoToday into memory
        data.logs[data.logs.findIndex(el => el.date.getTime() === obj.date.getTime())].saldo = saldoToday;
-       
+
        /*
        //take old saldo and add/remove new saldo
        totalSaldo = 0;
@@ -321,9 +317,10 @@ let AppController = (function() {
        //starting saldo gets used only in getSaldo function
        data.saldo = parseInt(totalSaldo);
        */
-
-       console.log("Koko Saldo: " + totalSaldo);
-       console.log("Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo));
+       if (debugging) {
+          console.log("Koko Saldo: " + totalSaldo);
+          console.log("Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo));
+       }
      }
      },
      getSaldo: function() {
@@ -460,7 +457,7 @@ let UIController = (function() {
         else
           console.log(message);
       }
-  
+
       function logError(message) {
         logText(message, true);
       }
@@ -482,7 +479,7 @@ let UIController = (function() {
     if (date && time && (in_correction || out_correction || OAS_correction)) {
       return true;
     }
-  };   
+  };
 
 return {
     getDOMStrings: function() {
@@ -540,7 +537,7 @@ return {
       if (tableRows && tableRows.length > 0) {
       nodelistForEach(tableRows, function(el) {return el.remove();})  ;
       }
-      //TODO: group by month and year  
+      //TODO: group by month and year
 
       array.forEach(el => {
           let rows = document.createElement('TR');
@@ -645,7 +642,7 @@ return {
         loggingCorrectionDIV.style.display = 'block';
         }
       }
-      
+
       //Save changed logging and close modal
       correctionButton.onclick = function() {
         const correction = saveCorrection();
@@ -742,7 +739,7 @@ let Controller = (function(AppController, UIController) {
     let setNow = function() {
       AppController.setTime();
     };
-  
+
   function regSW() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/Tyo-aikaApp/sw.js').then(function(reg) {
@@ -754,7 +751,7 @@ let Controller = (function(AppController, UIController) {
         } else if(reg.active) {
           console.log('Service worker active');
         }
-    
+
       }).catch(function(err) {
           console.info('Service workers are not supported. ' + err );
         });
