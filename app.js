@@ -367,7 +367,7 @@ let AppController = (function() {
      printData: function() {
        let printOut;
        //get locale of browser
-       const lang = navigator.language;
+       const lang = "de-DE";//navigator.language;
        //options for timeFormator
        const options = {
         //timeStyle: 'short',
@@ -382,8 +382,65 @@ let AppController = (function() {
          console.log(myData);
          window.myData = myData;
        }
+       //format secondary headings in table
+       // input is date with the first day of the month
+       const formatHeading = (date) => {
+              var string = new Intl.DateTimeFormat(lang, {year: 'numeric', month: 'long'}).format(date);
+              return string[0].toUpperCase() + string.substring(1);
+       };
+       //format days in human readable manner
+       const dayFormator = (date) => {
+         const now = new Date();
+         const daysPassed = Math.floor((now - date) / 1000 / 60 / 60 / 24);
+        if (daysPassed < 1 ) return `Tänään`
+        else if (daysPassed === 1 ) return `Eilen`
+        else if (daysPassed < 5 ) return  new Intl.DateTimeFormat(lang, {weekday: 'long'}).format(date)
+        else return formator.format(date)
+       };
+
        printOut = [];
        if (myData && myData.length > 0) {
+        var groups = myData.reduce(function (r, o) {
+          var m = new Date(`${o.date.getFullYear()}-${o.date.getMonth() + 1}`);
+          (r[m]) ? r[m].data.push(o) : r[m] = {month: String(m), data: [o]};
+          return r;
+        }, {});
+        var myDataByMonth = Object.keys(groups).map(function(k) {return groups[k]; });//.sort((a,b) => b - a); //sort descending
+
+        if (debugging) {
+          console.log(myDataByMonth);
+          window.myDataByMonth = myDataByMonth;
+        }
+        for (i in myDataByMonth) {
+          const curMonth = {
+            month: formatHeading(new Date(myDataByMonth[i].month)),
+            days: []
+          };
+          printOut.push(curMonth);
+          for (a in myDataByMonth[i].data) {
+            let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
+            dailyIn = (myDataByMonth[i].data[a].in.length > 0) ? myDataByMonth[i].data[a].in.sort((a,b) => a.log - b.log) : [];
+            dailyInDate = (dailyIn.length > 0) ? new Date(dailyIn[0].log) : -1;
+            dailyOut = (myDataByMonth[i].data[a].out.length > 0) ? myDataByMonth[i].data[a].out.sort((a,b) => b.log - a.log) : [];
+            dailyOutDate = (dailyOut.length > 0 ) ? new Date(dailyOut[0].log) : -1;
+            workingDay = (dailyOutDate > 0 && dailyInDate > 0) ? dailyOutDate - dailyInDate : '---';
+            printLine = [
+              //formator.format(myDataByMonth[i].data[a].date),
+              dayFormator(myDataByMonth[i].data[a].date),
+              (dailyInDate > 0) ? timeFormator.format(dailyInDate) : '---',
+              (dailyOutDate > 0) ? timeFormator.format(dailyOutDate) : '---',
+              (!isNaN(workingDay)) ? this.toHours(workingDay).replace(':', '.') : '---',//työpäivän pituus
+              this.toHours(myDataByMonth[i].data[a].saldo).replace(':', '.'),
+              (myDataByMonth[i].data[a].ownSaldo) ? this.toHours(myDataByMonth[i].data[a].ownSaldo).replace(':', '.') : '---'
+            ];
+            curMonth.days.push(printLine);
+          }
+        }
+
+        if (debugging) {
+          console.log(printOut);
+        }
+        /*
        for (let i = 0; i < myData.length; i++) {
          let dailyInDate, dailyIn, dailyOutDate, dailyOut, printLine, workingDay;
          dailyIn = (myData[i].in.length > 0) ? myData[i].in.sort(function(a,b){return a.log -b.log}) : [];
@@ -401,6 +458,7 @@ let AppController = (function() {
             ];
          printOut.push(printLine);
        }
+       */
        return printOut;
       }
      },
@@ -437,7 +495,8 @@ let UIController = (function() {
     modalButton: '#open-settings',
     modalClose: 'close',
     status: 'status',
-    logTable: '.history-caption',
+    logTable: '.history-table',
+    logTableSubHeading: '.history-sub-caption',
     workingTimeInput: '#working-time-input',
     workingTimePercent: '#working-time-percent',
     workingTimeSaldoType: '.saldo__type',
@@ -548,26 +607,39 @@ return {
         alert('Päivitä työaikasi! Uusi päivittäinen täysi työaika on 7:15. Työajan voit vaihtaa asetuksissa.');
       }
     },
-    formatLogData: function(array) {
-      //table.classList.add('hidden');
-      if (array && array.length > 0) {
-      let table = document.querySelector(DOMStrings.logTable);
-      let tableRows = document.querySelectorAll('td');
-      if (tableRows && tableRows.length > 0) {
-      nodelistForEach(tableRows, function(el) {return el.remove();})  ;
-      }
-      //TODO: group by month and year
+    formatLogData: function(tableData) {
+      //prepare table in document
+      if (tableData ) {
+      const table = document.querySelector(DOMStrings.logTable);
+      const tableRows = document.querySelectorAll('td');
+      if (tableRows && tableRows.length > 0) nodelistForEach(tableRows, function(el) {return el.parentNode.remove();});
+      const tableSubHeadings = table.querySelectorAll(DOMStrings.logTableSubHeading);
+      if (tableSubHeadings && tableSubHeadings.length > 0) nodelistForEach(tableSubHeadings, function(el) {return el.parentNode.remove();});
+      //Fill table
+      for (i in tableData) {
+        //Generate monthly headings
+          const headingRow = document.createElement('TR');
+          const heading = document.createElement('TH');
+          heading.setAttribute('colspan', 6);
+          heading.classList.add('history-sub-caption');
+          const headingCell = document.createTextNode(tableData[i].month);
+          heading.appendChild(headingCell);
+          headingRow.appendChild(heading);
+          table.children[0].appendChild(headingRow);
+        //Generate daily data
+          const array = tableData[i].days;
+          array.forEach(el => {
+              let rows = document.createElement('TR');
+              el.forEach(innerEl => {
+                let row = document.createElement('TD');
+                let cell = document.createTextNode(innerEl);
+                row.appendChild(cell);
+                rows.appendChild(row);
+              });
+              table.children[0].appendChild(rows);
+          })
 
-      array.forEach(el => {
-          let rows = document.createElement('TR');
-          el.forEach(innerEl => {
-            let row = document.createElement('TD');
-            let cell = document.createTextNode(innerEl);
-            row.appendChild(cell);
-            rows.appendChild(row);
-          });
-          table.children[0].appendChild(rows);
-      });
+      };
       table.classList.remove('hidden');
       }
     },
