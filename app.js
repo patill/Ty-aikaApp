@@ -6,7 +6,7 @@ if (navigator.storage && navigator.storage.persist) {
 }
 */
 //Debugging flag to switch on console printing
-const debugging = true;
+const debugging = false;
 
 let AppController = (function() {
   let date = new Date();
