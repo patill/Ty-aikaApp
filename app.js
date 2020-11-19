@@ -367,7 +367,7 @@ let AppController = (function() {
      printData: function() {
        let printOut;
        //get locale of browser
-       const lang = "de-DE";//navigator.language;
+       const lang = navigator.language;
        //options for timeFormator
        const options = {
         //timeStyle: 'short',
