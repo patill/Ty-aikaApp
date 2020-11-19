@@ -649,13 +649,21 @@ return {
         logError('Error: Unsupported feature: navigator.share()');
         return;
       }
-      const userName = `${AppController.getName()}
+      const userName = `${AppController.getName()};
 
                 `;
-      const text_input = AppController.printData().join('\n').replace(/,/g,'\t');
+      const text_input = AppController.printData();
       const tableTitle = 'Päivä\t Sisään\t Ulos\t Työpäivä\t Saldo\t Oma aika\n';
       let table = tableTitle;
-      table += text_input;
+      const dataTable = [];
+      for (a in text_input)
+      {
+        dataTable.push(text_input[a].month);
+        for (i in text_input[a].days) {
+          dataTable.push(text_input[a].days[i]);
+        }
+      }
+      table += dataTable.join('\n').replace(/,/g,'\t');
       const title = 'Työajanseuranta';
       const text = userName + table;
       const files = [new File([table], 'loggings.csv', {type : 'text/csv'})];
