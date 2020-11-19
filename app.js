@@ -392,10 +392,12 @@ let AppController = (function() {
        const dayFormator = (date) => {
          const now = new Date();
          const daysPassed = Math.floor((now - date) / 1000 / 60 / 60 / 24);
-        if (daysPassed < 1 ) return `Tänään`
-        else if (daysPassed === 1 ) return `Eilen`
-        else if (daysPassed < 5 ) return  new Intl.DateTimeFormat(lang, {weekday: 'long'}).format(date)
-        else return formator.format(date)
+        if (daysPassed < 1 ) return `Tänään`;
+        else if (daysPassed === 1 ) return `Eilen`;
+        else if (daysPassed < 5 ) {
+          const weekday = new Intl.DateTimeFormat(lang, {weekday: 'long'}).format(date);
+          return  weekday[0].toUpperCase() + weekday.substring(1);
+        } else return formator.format(date);
        };
 
        printOut = [];
