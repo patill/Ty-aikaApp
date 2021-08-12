@@ -705,6 +705,8 @@ let UIController = (function () {
     document.querySelector(DOMStrings.correctionDIV).style.display = 'none';
     //remove all warning classes
     document.querySelectorAll('.warning').forEach((el) => el.remove());
+    document.querySelector(DOMStrings.importInput).value = '';
+    document.querySelector(DOMStrings.importInput).classList.remove('success');
   };
 
   //error function for webshare function
@@ -967,13 +969,23 @@ let UIController = (function () {
       a.target = 'blank';
       a.href = fileUrl;
       a.download = fileName;
-      const node = document.createTextNode(`Lataa oma data`);
-      a.appendChild(node);
-      element.appendChild(a);
+      element.insertAdjacentElement('afterend', a);
+      a.click();
+      a.remove();
+      UIController.hideModal();
+    },
+    dowloadButton: function () {
+      const downloadDiv = document.querySelector('#download-data-link');
+      UIController.downloadLink(
+        downloadDiv,
+        UIController.downloadData(),
+        'Kirjaukset.json'
+      );
+      console.log('Data has been downloaded');
     },
     downloadData: function () {
-      const data = JSON.stringify(AppController.getStoredData());
-      const blob = new Blob([data], { type: 'application/json' });
+      const ownData = JSON.stringify(AppController.getStoredData());
+      const blob = new Blob([ownData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       return url;
     },
@@ -987,13 +999,14 @@ let UIController = (function () {
       p.innerText = text;
       element.parentNode.appendChild(p);
     },
-    importVerification: function () {
+    inputVerification: function () {
       const input = document.querySelector(DOMStrings.importInput);
       input.addEventListener('input', function () {
         if (input.value.length > 0) {
-          console.log(input.value);
-          cleanUpModal();
-          input.classList.add('success'); //TODO: gets added even when no file selected
+          document.querySelectorAll('.warning').forEach((el) => el.remove());
+          input.classList.add('success');
+        } else {
+          input.classList.remove('success');
         }
       });
     },
@@ -1064,16 +1077,12 @@ let Controller = (function (AppController, UIController) {
 
     //Download link
     const downloadDiv = document.querySelector('#download-data-link');
-    UIController.downloadLink(
-      downloadDiv,
-      UIController.downloadData(),
-      'Kirjaukset.json'
-    );
+    downloadDiv.addEventListener('click', UIController.dowloadButton);
 
     //ImportButton
     const button = document.querySelector(DOM.importButton);
     button.addEventListener('click', UIController.prepareImport);
-    UIController.importVerification();
+    UIController.inputVerification();
   };
 
   //error function for webshare function
