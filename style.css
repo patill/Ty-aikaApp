@@ -1,6 +1,6 @@
 body {
   color: #555;
-  font-family: Open Sans;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   position: relative;
   height: 100vh;
@@ -104,7 +104,7 @@ ion-icon {
   transition: border 0.3s;
   text-align: center;
   margin: 5px;
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .working-time-input {
@@ -147,7 +147,7 @@ ion-icon {
   vertical-align: middle;
   touch-action: manipulation;
   cursor: pointer;
-  padding: 12px 18px;
+  padding: 10px 12px;
   font-size: 20px;
 }
 
@@ -162,6 +162,12 @@ ion-icon {
 a {
   color: white;
   text-decoration: none;
+}
+
+button,
+input,
+form {
+  font-family: 'Open sans', sans-serif;
 }
 
 /* Table settings */
