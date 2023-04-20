@@ -26,14 +26,14 @@ let AppController = (function () {
         */
     ], //array with objects with properties day (yyyy/dd/mm), out and in arrays + dailySaldo saved
     mostRecent: {
-      type: '',
+      type: "",
       time: 0,
     },
     workingTime: 26100000, //26460000,
     saldo: 0,
     startingSaldo: 0,
     dailySaldo: [], //array of objects with date and saldo pairs
-    name: '',
+    name: "",
   };
 
   if (debugging) {
@@ -49,7 +49,7 @@ let AppController = (function () {
       let inArray = obj.in.map((el) => el.log);
       //console.log(inArray);
       let outArray = obj.out
-        .filter((el) => el.type === 'OAS')
+        .filter((el) => el.type === "OAS")
         .map((el) => el.log);
       //console.log(outArray);
       //find next bigger entry from out in the in-array, then do in-entry - out-entry
@@ -68,18 +68,18 @@ let AppController = (function () {
   return {
     // Setting data into local storage
     storeData: function () {
-      if (typeof Storage !== 'undefined') {
-        localStorage.setItem('data', JSON.stringify(data));
-        console.log('Data stored');
+      if (typeof Storage !== "undefined") {
+        localStorage.setItem("data", JSON.stringify(data));
+        console.log("Data stored");
       }
     },
 
     // Getting data from local storage
     getStoredData: function () {
-      if (typeof Storage !== 'undefined') {
-        var localData = JSON.parse(localStorage.getItem('data'));
+      if (typeof Storage !== "undefined") {
+        var localData = JSON.parse(localStorage.getItem("data"));
         //make backup
-        localStorage.setItem('backup', JSON.stringify(localData));
+        localStorage.setItem("backup", JSON.stringify(localData));
         return localData;
       } // else do nothing
     },
@@ -109,8 +109,8 @@ let AppController = (function () {
     updateStartingSaldo: function () {
       const DOM = UIController.getDOMStrings();
       data.startingSaldo < 0
-        ? (document.querySelector(DOM.workingTimeSaldoType).value = '-')
-        : (document.querySelector(DOM.workingTimeSaldoType).value = '+');
+        ? (document.querySelector(DOM.workingTimeSaldoType).value = "-")
+        : (document.querySelector(DOM.workingTimeSaldoType).value = "+");
       document.querySelector(DOM.workingTimeSaldo).value = this.toHours(
         Math.abs(data.startingSaldo)
       );
@@ -131,19 +131,19 @@ let AppController = (function () {
       if (data.name && data.name.length > 0) {
         return data.name.trim();
       } else {
-        return '';
+        return "";
       }
     },
     getTime: function () {
       //adds zeros to the output, if needed
       function checkTime(i) {
-        return i < 10 ? '0' + i : i;
+        return i < 10 ? "0" + i : i;
       }
       let now, hour, minutes;
       now = new Date();
       hour = now.getHours();
       minutes = now.getMinutes();
-      return hour + ':' + minutes;
+      return hour + ":" + minutes;
     },
     addEmptyDay: function (dayString) {
       if (
@@ -179,16 +179,16 @@ let AppController = (function () {
       } else {
         nowObj = { log: now };
       }
-      if (type === 'SISÄÄN' && data.mostRecent.type !== 'SISÄÄN') {
+      if (type === "SISÄÄN" && data.mostRecent.type !== "SISÄÄN") {
         item.in.push(nowObj);
         data.mostRecent.type = type;
         data.mostRecent.time = now;
-        console.log('New SISÄÄN registered.');
-      } else if (type === 'ULOS' && data.mostRecent.type !== 'ULOS') {
+        console.log("New SISÄÄN registered.");
+      } else if (type === "ULOS" && data.mostRecent.type !== "ULOS") {
         item.out.push(nowObj);
         data.mostRecent.type = type;
         data.mostRecent.time = now;
-        console.log('New ULOS registered.');
+        console.log("New ULOS registered.");
       }
     },
     processCorrection: function (date, time, type) {
@@ -203,19 +203,19 @@ let AppController = (function () {
           data.logs.findIndex((el) => el.date.getTime() === dayString.getTime())
         ];
       //console.log(item);
-      logTime = new Date(date + 'T' + time);
+      logTime = new Date(date + "T" + time);
       //console.log(`logTime: ${logTime}`);
-      if (type === 'OAS') {
-        OASObj = { log: logTime, type: 'OAS' };
+      if (type === "OAS") {
+        OASObj = { log: logTime, type: "OAS" };
       } else {
         OASObj = { log: logTime };
       }
       if (debugging) {
         console.log(OASObj);
       }
-      if (type === 'SISÄÄN') {
+      if (type === "SISÄÄN") {
         item.in.push(OASObj);
-      } else if (type === 'ULOS' || type === 'OAS') {
+      } else if (type === "ULOS" || type === "OAS") {
         item.out.push(OASObj);
       }
       //Now calculate saldo of that day
@@ -250,7 +250,7 @@ let AppController = (function () {
           workingDay = mostRecentOut - firstLoginToday;
         }
         if (debugging) {
-          console.log('Working day: ' + this.toHours(workingDay));
+          console.log("Working day: " + this.toHours(workingDay));
         }
         //take into account also login and logouts in between and their reasons
         ownSaldoArray = countOwnOutSaldo(item);
@@ -382,9 +382,9 @@ let AppController = (function () {
         totalSaldo += data.logs[i].saldo;
       }
       if (debugging) {
-        console.log('Koko Saldo: ' + totalSaldo);
+        console.log("Koko Saldo: " + totalSaldo);
         console.log(
-          'Koko saldo plus aloitussaldo: ' + (totalSaldo + data.startingSaldo)
+          "Koko saldo plus aloitussaldo: " + (totalSaldo + data.startingSaldo)
         );
       }
       //take startingSaldo only here into account
@@ -397,10 +397,10 @@ let AppController = (function () {
       return data.workingTime;
     },
     toMS: function (time) {
-      let timeArray = time.split(':');
+      let timeArray = time.split(":");
       let hours = timeArray[0];
       let minutes = timeArray[1];
-      if (hours.length > 2 && hours[0] === '-') {
+      if (hours.length > 2 && hours[0] === "-") {
         return hours * 60 * 60 * 1000 + minutes * 60 * 1000 * -1;
       } else {
         return hours * 60 * 60 * 1000 + minutes * 60 * 1000;
@@ -412,14 +412,14 @@ let AppController = (function () {
 
       if (Math.abs(hours) < 10) {
         if (hours < 0 || minutes < 0) {
-          hours = '-0' + Math.abs(hours).toString();
+          hours = "-0" + Math.abs(hours).toString();
         } else {
-          hours = '0' + hours;
+          hours = "0" + hours;
         }
       }
       return Math.abs(minutes) < 10
-        ? hours.toString() + ':' + '0' + Math.abs(minutes)
-        : hours.toString() + ':' + Math.abs(minutes);
+        ? hours.toString() + ":" + "0" + Math.abs(minutes)
+        : hours.toString() + ":" + Math.abs(minutes);
     },
     printData: function () {
       let printOut;
@@ -428,8 +428,8 @@ let AppController = (function () {
       //options for timeFormator
       const options = {
         //timeStyle: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
       };
       //formator for dates
       const formator = new Intl.DateTimeFormat(lang);
@@ -445,8 +445,8 @@ let AppController = (function () {
       // input is date with the first day of the month
       const formatHeading = (date) => {
         var string = new Intl.DateTimeFormat(lang, {
-          year: 'numeric',
-          month: 'long',
+          year: "numeric",
+          month: "long",
         }).format(date);
         return string[0].toUpperCase() + string.substring(1);
       };
@@ -458,7 +458,7 @@ let AppController = (function () {
         else if (daysPassed === 1) return `Eilen`;
         else if (daysPassed < 5) {
           const weekday = new Intl.DateTimeFormat(lang, {
-            weekday: 'long',
+            weekday: "long",
           }).format(date);
           return weekday[0].toUpperCase() + weekday.substring(1);
         } else return formator.format(date);
@@ -510,22 +510,22 @@ let AppController = (function () {
             workingDay =
               dailyOutDate > 0 && dailyInDate > 0
                 ? dailyOutDate - dailyInDate
-                : '---';
+                : "---";
             printLine = [
               //formator.format(myDataByMonth[i].data[a].date),
               dayFormator(myDataByMonth[i].data[a].date),
-              dailyInDate > 0 ? timeFormator.format(dailyInDate) : '---',
-              dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : '---',
+              dailyInDate > 0 ? timeFormator.format(dailyInDate) : "---",
+              dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : "---",
               !isNaN(workingDay)
-                ? this.toHours(workingDay).replace(':', '.')
-                : '---', //työpäivän pituus
-              this.toHours(myDataByMonth[i].data[a].saldo).replace(':', '.'),
+                ? this.toHours(workingDay).replace(":", ".")
+                : "---", //työpäivän pituus
+              this.toHours(myDataByMonth[i].data[a].saldo).replace(":", "."),
               myDataByMonth[i].data[a].ownSaldo
                 ? this.toHours(myDataByMonth[i].data[a].ownSaldo).replace(
-                    ':',
-                    '.'
+                    ":",
+                    "."
                   )
-                : '---',
+                : "---",
             ];
             curMonth.days.push(printLine);
           }
@@ -544,8 +544,8 @@ let AppController = (function () {
       //options for timeFormator
       const options = {
         //timeStyle: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
       };
       //formator for dates
       const formator = new Intl.DateTimeFormat(lang);
@@ -555,7 +555,7 @@ let AppController = (function () {
       });
 
       if (debugging) {
-        console.log('Data: ');
+        console.log("Data: ");
         console.log(myData);
         window.myData = myData;
       }
@@ -578,18 +578,18 @@ let AppController = (function () {
         workingDay =
           dailyOutDate > 0 && dailyInDate > 0
             ? dailyOutDate - dailyInDate
-            : '---';
+            : "---";
         printLine = [
           formator.format(myData[i].date),
-          dailyInDate > 0 ? timeFormator.format(dailyInDate) : '---',
-          dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : '---',
+          dailyInDate > 0 ? timeFormator.format(dailyInDate) : "---",
+          dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : "---",
           !isNaN(workingDay)
-            ? this.toHours(workingDay).replace(':', '.')
-            : '---', //työpäivän pituus
-          this.toHours(myData[i].saldo).replace(':', '.'),
+            ? this.toHours(workingDay).replace(":", ".")
+            : "---", //työpäivän pituus
+          this.toHours(myData[i].saldo).replace(":", "."),
           myData[i].ownSaldo
-            ? this.toHours(myData[i].ownSaldo).replace(':', '.')
-            : '---',
+            ? this.toHours(myData[i].ownSaldo).replace(":", ".")
+            : "---",
         ];
         printOut.push(printLine);
       }
@@ -617,16 +617,15 @@ let AppController = (function () {
         if (
           newData.logs &&
           newData.workingTime &&
-          newData.name &&
           newData.mostRecent &&
           newData.logs.length > 0
         ) {
           const conf = window.confirm(
-            'Haluatko todella poistaa vanhat kirjaustiedot ja tallentaa uudet?'
+            "Haluatko todella poistaa vanhat kirjaustiedot ja tallentaa uudet?"
           );
           if (conf) {
             //localStorage.setItem('oldData', JSON.stringify(data));
-            localStorage.setItem('data', JSON.stringify(newData));
+            localStorage.setItem("data", JSON.stringify(newData));
             UIController.hideModal();
             // 1. Load data from local storage
             //var storedData = AppController.getStoredData();
@@ -652,35 +651,35 @@ let UIController = (function () {
     }
   };
   let DOMStrings = {
-    inputField: '.tyoaika',
-    buttonIn: '#sis',
-    buttonOAOUT: '#OAU',
-    buttonOut: '#ulos',
-    buttonSubmit: '#settings-submit',
-    buttonSaveCorrection: '#save_correction',
-    modal: '#modal-settings',
-    modalButton: '#open-settings',
-    modalClose: 'close',
-    status: 'status',
-    logTable: '.history-table',
-    logTableSubHeading: '.history-sub-caption',
-    workingTimeInput: '#working-time-input',
-    workingTimePercent: '#working-time-percent',
-    workingTimeSaldoType: '.saldo__type',
-    workingTimeSaldo: '#starting-saldo',
-    settingsSubmit: '#settings-submit',
-    historyTable: '.history',
-    shareButton: '.share-button',
-    settingName: '.name',
-    correctionDate: '#correction-date',
-    correctionTime: '#correction-time',
-    correctionIn: '#radio-sis',
-    correctionOut: '#radio-ul',
-    correctionOAS: '#radio-oas',
-    correctionShow: '#show-correction',
-    correctionDIV: '.logging-correction',
-    importInput: '#import-data-file',
-    importButton: '#import-data-submit',
+    inputField: ".tyoaika",
+    buttonIn: "#sis",
+    buttonOAOUT: "#OAU",
+    buttonOut: "#ulos",
+    buttonSubmit: "#settings-submit",
+    buttonSaveCorrection: "#save_correction",
+    modal: "#modal-settings",
+    modalButton: "#open-settings",
+    modalClose: "close",
+    status: "status",
+    logTable: ".history-table",
+    logTableSubHeading: ".history-sub-caption",
+    workingTimeInput: "#working-time-input",
+    workingTimePercent: "#working-time-percent",
+    workingTimeSaldoType: ".saldo__type",
+    workingTimeSaldo: "#starting-saldo",
+    settingsSubmit: "#settings-submit",
+    historyTable: ".history",
+    shareButton: ".share-button",
+    settingName: ".name",
+    correctionDate: "#correction-date",
+    correctionTime: "#correction-time",
+    correctionIn: "#radio-sis",
+    correctionOut: "#radio-ul",
+    correctionOAS: "#radio-oas",
+    correctionShow: "#show-correction",
+    correctionDIV: ".logging-correction",
+    importInput: "#import-data-file",
+    importButton: "#import-data-submit",
   };
   let saveSettings = function () {
     //save changes to working time
@@ -693,22 +692,22 @@ let UIController = (function () {
     const startingSaldoNumber = document.querySelector(
       DOMStrings.workingTimeSaldo
     ).value;
-    startingSaldo += startingSaldoNumber ? startingSaldoNumber : '00:00';
+    startingSaldo += startingSaldoNumber ? startingSaldoNumber : "00:00";
     //save name
     let myName = document.querySelector(DOMStrings.settingName).value;
     AppController.applySettings(workingTime, startingSaldo, myName);
   };
   let reset = function () {
-    document.querySelector(DOMStrings.workingTimeInput).value = '07:15';
+    document.querySelector(DOMStrings.workingTimeInput).value = "07:15";
     document.querySelector(DOMStrings.workingTimePercent).value = 100;
   };
   const cleanUpModal = function () {
-    document.querySelector(DOMStrings.correctionShow).style.display = 'block';
-    document.querySelector(DOMStrings.correctionDIV).style.display = 'none';
+    document.querySelector(DOMStrings.correctionShow).style.display = "block";
+    document.querySelector(DOMStrings.correctionDIV).style.display = "none";
     //remove all warning classes
-    document.querySelectorAll('.warning').forEach((el) => el.remove());
-    document.querySelector(DOMStrings.importInput).value = '';
-    document.querySelector(DOMStrings.importInput).classList.remove('success');
+    document.querySelectorAll(".warning").forEach((el) => el.remove());
+    document.querySelector(DOMStrings.importInput).value = "";
+    document.querySelector(DOMStrings.importInput).classList.remove("success");
   };
 
   //error function for webshare function
@@ -755,7 +754,7 @@ let UIController = (function () {
       // addition at the moment only 'OAS'
       AppController.addLogging(type, addition);
       //here we can calculate saldo
-      if (type === 'ULOS') {
+      if (type === "ULOS") {
         AppController.calcSaldo();
       }
       AppController.storeData();
@@ -764,15 +763,15 @@ let UIController = (function () {
     status: function () {
       let el, text;
       el = document.getElementById(DOMStrings.status);
-      if (AppController.mostRecentLogging().type === 'SISÄÄN') {
-        text = 'Olet kirjautunut sisään.';
-      } else if (AppController.mostRecentLogging().type === 'ULOS') {
-        text = 'Olet kirjautunut ulos.';
+      if (AppController.mostRecentLogging().type === "SISÄÄN") {
+        text = "Olet kirjautunut sisään.";
+      } else if (AppController.mostRecentLogging().type === "ULOS") {
+        text = "Olet kirjautunut ulos.";
       } else {
-        text = '';
+        text = "";
       }
 
-      el.innerText = text + '\nSaldosi on ' + AppController.getSaldo();
+      el.innerText = text + "\nSaldosi on " + AppController.getSaldo();
     },
     updateSettings: function () {
       //get time from DOM
@@ -783,20 +782,20 @@ let UIController = (function () {
       let percent = document.querySelector(DOMStrings.workingTimePercent).value;
       let time = document.querySelector(DOMStrings.workingTimeInput);
       time.value = AppController.toHours(
-        (AppController.toMS('7:15') * percent) / 100
+        (AppController.toMS("7:15") * percent) / 100
       );
     },
     updatePercent: function () {
       let percent = document.querySelector(DOMStrings.workingTimePercent);
       let time = document.querySelector(DOMStrings.workingTimeInput).value;
       percent.value = Math.round(
-        (AppController.toMS(time) / AppController.toMS('7:15')) * 100
+        (AppController.toMS(time) / AppController.toMS("7:15")) * 100
       );
     },
     wrongWorkingTimeAlert: function () {
       if (AppController.getWorkingTime() > 26100000) {
         alert(
-          'Päivitä työaikasi! Uusi päivittäinen täysi työaika on 7:15. Työajan voit vaihtaa asetuksissa.'
+          "Päivitä työaikasi! Uusi päivittäinen täysi työaika on 7:15. Työajan voit vaihtaa asetuksissa."
         );
       }
     },
@@ -804,7 +803,7 @@ let UIController = (function () {
       //prepare table in document
       if (tableData) {
         const table = document.querySelector(DOMStrings.logTable);
-        const tableRows = document.querySelectorAll('td');
+        const tableRows = document.querySelectorAll("td");
         if (tableRows && tableRows.length > 0)
           nodelistForEach(tableRows, function (el) {
             return el.parentNode.remove();
@@ -819,10 +818,10 @@ let UIController = (function () {
         //Fill table
         for (i in tableData) {
           //Generate monthly headings
-          const headingRow = document.createElement('TR');
-          const heading = document.createElement('TH');
-          heading.setAttribute('colspan', 6);
-          heading.classList.add('history-sub-caption');
+          const headingRow = document.createElement("TR");
+          const heading = document.createElement("TH");
+          heading.setAttribute("colspan", 6);
+          heading.classList.add("history-sub-caption");
           const headingCell = document.createTextNode(tableData[i].month);
           heading.appendChild(headingCell);
           headingRow.appendChild(heading);
@@ -830,9 +829,9 @@ let UIController = (function () {
           //Generate daily data
           const array = tableData[i].days;
           array.forEach((el) => {
-            let rows = document.createElement('TR');
+            let rows = document.createElement("TR");
             el.forEach((innerEl) => {
-              let row = document.createElement('TD');
+              let row = document.createElement("TD");
               let cell = document.createTextNode(innerEl);
               row.appendChild(cell);
               rows.appendChild(row);
@@ -840,13 +839,13 @@ let UIController = (function () {
             table.children[0].appendChild(rows);
           });
         }
-        table.classList.remove('hidden');
+        table.classList.remove("hidden");
       }
     },
 
     webShare: async function () {
       if (navigator.share === undefined) {
-        logError('Error: Unsupported feature: navigator.share()');
+        logError("Error: Unsupported feature: navigator.share()");
         return;
       }
       const userName = `${AppController.getName()}
@@ -854,12 +853,12 @@ let UIController = (function () {
       `;
       const text_input = AppController.shareData();
       const tableTitle =
-        'Päivä\t Sisään\t Ulos\t Työpäivä\t Saldo\t Oma aika\n';
+        "Päivä\t Sisään\t Ulos\t Työpäivä\t Saldo\t Oma aika\n";
       let table = tableTitle;
-      table += text_input.join('\n').replace(/,/g, '\t');
-      const title = 'Työajanseuranta';
+      table += text_input.join("\n").replace(/,/g, "\t");
+      const title = "Työajanseuranta";
       const text = userName + table;
-      const files = [new File([table], 'loggings.csv', { type: 'text/csv' })];
+      const files = [new File([table], "loggings.csv", { type: "text/csv" })];
       //const text = text_input.disabled ? undefined : text_input.innerText;
       //const url = url_input.disabled ? undefined : url_input.value;
       //const files = file_input.disabled ? undefined : file_input.files;
@@ -874,9 +873,9 @@ let UIController = (function () {
       */
       try {
         await navigator.share({ title: title, text: text, files: files });
-        logText('Successfully sent share');
+        logText("Successfully sent share");
       } catch (error) {
-        logError('Error sharing: ' + error);
+        logError("Error sharing: " + error);
       }
     },
     setModal: function () {
@@ -909,7 +908,7 @@ let UIController = (function () {
 
       // When the user clicks on the button, open the modal
       btn.onclick = function () {
-        modal.style.display = 'block';
+        modal.style.display = "block";
         AppController.updateStartingSaldo();
         AppController.updateWorkingTimePercent();
         AppController.updateName();
@@ -917,7 +916,7 @@ let UIController = (function () {
 
       // When the user clicks on <span> (x), close the modal
       span.onclick = function () {
-        modal.style.display = 'none';
+        modal.style.display = "none";
         reset();
         cleanUpModal();
       };
@@ -925,7 +924,7 @@ let UIController = (function () {
       // When the user clicks anywhere outside of the modal, close it
       window.onclick = function (event) {
         if (event.target == modal) {
-          modal.style.display = 'none';
+          modal.style.display = "none";
           cleanUpModal();
         }
       };
@@ -934,7 +933,7 @@ let UIController = (function () {
         saveSettings();
         AppController.storeData();
         UIController.status();
-        modal.style.display = 'none';
+        modal.style.display = "none";
         cleanUpModal();
         return false; //prevents page from reloading
       };
@@ -942,8 +941,8 @@ let UIController = (function () {
       //Show the logging changing part
       if (correctionShowButton) {
         correctionShowButton.onclick = function () {
-          correctionShowButton.style.display = 'none';
-          loggingCorrectionDIV.style.display = 'block';
+          correctionShowButton.style.display = "none";
+          loggingCorrectionDIV.style.display = "block";
         };
       }
 
@@ -951,7 +950,7 @@ let UIController = (function () {
       correctionButton.onclick = function () {
         const correction = saveCorrection();
         if (correction) {
-          modal.style.display = 'none';
+          modal.style.display = "none";
           cleanUpModal();
           UIController.status();
           UIController.formatLogData(AppController.printData());
@@ -961,54 +960,54 @@ let UIController = (function () {
           //p.classList.add('warning');
           //p.innerText = 'Täytä kaikki kentät!';
           //correctionButton.parentNode.appendChild(p);
-          UIController.issueWarning('Täytä kaikki kentät!', correctionButton);
+          UIController.issueWarning("Täytä kaikki kentät!", correctionButton);
         }
         return false;
       };
     },
     downloadLink: function (element, fileUrl, fileName) {
-      const a = document.createElement('a');
-      a.target = 'blank';
+      const a = document.createElement("a");
+      a.target = "blank";
       a.href = fileUrl;
       a.download = fileName;
-      element.insertAdjacentElement('afterend', a);
+      element.insertAdjacentElement("afterend", a);
       a.click();
       a.remove();
       UIController.hideModal();
     },
     dowloadButton: function () {
-      const downloadDiv = document.querySelector('#download-data-link');
+      const downloadDiv = document.querySelector("#download-data-link");
       UIController.downloadLink(
         downloadDiv,
         UIController.downloadData(),
-        'Kirjaukset.json'
+        "Kirjaukset.json"
       );
-      console.log('Data has been downloaded');
+      console.log("Data has been downloaded");
     },
     downloadData: function () {
       const ownData = JSON.stringify(AppController.getStoredData());
-      const blob = new Blob([ownData], { type: 'application/json' });
+      const blob = new Blob([ownData], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       return url;
     },
     hideModal: function () {
       const modal = document.querySelector(DOMStrings.modal);
-      modal.style.display = 'none';
+      modal.style.display = "none";
     },
     issueWarning: function (text, element) {
-      const p = document.createElement('P');
-      p.classList.add('warning');
+      const p = document.createElement("P");
+      p.classList.add("warning");
       p.innerText = text;
       element.parentNode.appendChild(p);
     },
     inputVerification: function () {
       const input = document.querySelector(DOMStrings.importInput);
-      input.addEventListener('input', function () {
+      input.addEventListener("input", function () {
         if (input.value.length > 0) {
-          document.querySelectorAll('.warning').forEach((el) => el.remove());
-          input.classList.add('success');
+          document.querySelectorAll(".warning").forEach((el) => el.remove());
+          input.classList.add("success");
         } else {
-          input.classList.remove('success');
+          input.classList.remove("success");
         }
       });
     },
@@ -1017,7 +1016,7 @@ let UIController = (function () {
       const inputFile = document.querySelector(DOMStrings.importInput).files[0];
       //clean up, if file selected:
       if (!inputFile) {
-        UIController.issueWarning('Valitse tiedosto!', button);
+        UIController.issueWarning("Valitse tiedosto!", button);
         return false;
       }
       AppController.importData(inputFile);
@@ -1032,58 +1031,58 @@ let Controller = (function (AppController, UIController) {
     var DOM = UIController.getDOMStrings();
 
     //Click for adding an item
-    document.querySelector(DOM.buttonIn).addEventListener('click', ctrAddIn); //callback function, does not have to be called here directly
+    document.querySelector(DOM.buttonIn).addEventListener("click", ctrAddIn); //callback function, does not have to be called here directly
 
-    document.querySelector(DOM.buttonOut).addEventListener('click', ctrAddOut);
+    document.querySelector(DOM.buttonOut).addEventListener("click", ctrAddOut);
 
     document
       .querySelector(DOM.buttonOAOUT)
-      .addEventListener('click', ctrAddOwnOut);
+      .addEventListener("click", ctrAddOwnOut);
 
     //click for saving settings
     document
       .querySelector(DOM.settingsSubmit)
-      .addEventListener('click', UIController.updateSettings);
+      .addEventListener("click", UIController.updateSettings);
 
     document
       .querySelector(DOM.workingTimePercent)
-      .addEventListener('blur', UIController.updateTime);
+      .addEventListener("blur", UIController.updateTime);
     document
       .querySelector(DOM.workingTimePercent)
-      .addEventListener('click', UIController.updateTime);
+      .addEventListener("click", UIController.updateTime);
 
     document
       .querySelector(DOM.workingTimeInput)
-      .addEventListener('blur', UIController.updatePercent);
+      .addEventListener("blur", UIController.updatePercent);
 
     //Share button
     document
       .querySelector(DOM.shareButton)
-      .addEventListener('click', UIController.webShare);
+      .addEventListener("click", UIController.webShare);
 
     if (navigator.share === undefined) {
-      if (window.location.protocol === 'http:') {
+      if (window.location.protocol === "http:") {
         // navigator.share() is only available in secure contexts.
         window.location.replace(
-          window.location.href.replace(/^http:/, 'https:')
+          window.location.href.replace(/^http:/, "https:")
         );
       } else {
         logError(
-          'Error: You need to use a browser that supports this draft ' +
-            'proposal.'
+          "Error: You need to use a browser that supports this draft " +
+            "proposal."
         );
         //hide button, if not supported
-        document.querySelector(DOM.shareButton).classList.add('hidden');
+        document.querySelector(DOM.shareButton).classList.add("hidden");
       }
     }
 
     //Download link
-    const downloadDiv = document.querySelector('#download-data-link');
-    downloadDiv.addEventListener('click', UIController.dowloadButton);
+    const downloadDiv = document.querySelector("#download-data-link");
+    downloadDiv.addEventListener("click", UIController.dowloadButton);
 
     //ImportButton
     const button = document.querySelector(DOM.importButton);
-    button.addEventListener('click', UIController.prepareImport);
+    button.addEventListener("click", UIController.prepareImport);
     UIController.inputVerification();
   };
 
@@ -1099,19 +1098,19 @@ let Controller = (function (AppController, UIController) {
 
   let ctrAddIn = function () {
     //call function from UIController
-    UIController.regLogging('SISÄÄN');
+    UIController.regLogging("SISÄÄN");
     UIController.status();
     UIController.formatLogData(AppController.printData());
   };
 
   let ctrAddOut = function () {
     //call function from UIController
-    UIController.regLogging('ULOS');
+    UIController.regLogging("ULOS");
     UIController.status();
     UIController.formatLogData(AppController.printData());
   };
   let ctrAddOwnOut = function () {
-    UIController.regLogging('ULOS', 'OAS');
+    UIController.regLogging("ULOS", "OAS");
     UIController.status();
     UIController.formatLogData(AppController.printData());
   };
@@ -1120,20 +1119,20 @@ let Controller = (function (AppController, UIController) {
   };
 
   function regSW() {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register('/Tyo-aikaApp/sw.js')
+        .register("/Tyo-aikaApp/sw.js")
         .then(function (reg) {
           if (reg.installing) {
-            console.log('Service worker installing');
+            console.log("Service worker installing");
           } else if (reg.waiting) {
-            console.log('Service worker installed');
+            console.log("Service worker installed");
           } else if (reg.active) {
-            console.log('Service worker active');
+            console.log("Service worker active");
           }
         })
         .catch(function (err) {
-          console.info('Service workers are not supported. ' + err);
+          console.info("Service workers are not supported. " + err);
         });
     }
   }
@@ -1156,15 +1155,15 @@ let Controller = (function (AppController, UIController) {
 
   return {
     init: function () {
-      console.log('Application has started.');
+      console.log("Application has started.");
       UIController.setModal();
       //setInterval(setNow(), 1000);
       //Show the time
-      document.getElementById('tyoaika').innerText =
+      document.getElementById("tyoaika").innerText =
         new Date().toLocaleTimeString();
       //update time every second
       setInterval(function () {
-        document.getElementById('tyoaika').innerText =
+        document.getElementById("tyoaika").innerText =
           new Date().toLocaleTimeString();
       }, 1000);
 
