@@ -1,10 +1,3 @@
-// Check if site's storage has been marked as persistent
-/*
-if (navigator.storage && navigator.storage.persist) {
-  const isPersisted = await navigator.storage.persisted();
-  console.log(`Persisted storage granted: ${isPersisted}`);
-}
-*/
 //Debugging flag to switch on console printing
 const debugging = false;
 
@@ -81,7 +74,7 @@ let AppController = (function () {
         //make backup
         localStorage.setItem("backup", JSON.stringify(localData));
         return localData;
-      } // else do nothing
+      }
     },
     //update Data to work with
     updateData: function (storedData) {
@@ -114,7 +107,6 @@ let AppController = (function () {
       document.querySelector(DOM.workingTimeSaldo).value = this.toHours(
         Math.abs(data.startingSaldo)
       );
-      //this.calcSaldo();
     },
     updateWorkingTimePercent: function () {
       const DOM = UIController.getDOMStrings();
@@ -274,7 +266,6 @@ let AppController = (function () {
           ].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
           //workingDay = workingDay - ownSaldo;
-          //
         }
         //compare to workingTime
         saldoToday = 0;
@@ -352,7 +343,6 @@ let AppController = (function () {
           ].ownSaldo = ownSaldo;
           //remove sum of ownOut from workingDay
           //workingDay = workingDay - ownSaldo;
-          //
         }
         //compare to workingTime
         saldoToday = 0;
@@ -363,17 +353,6 @@ let AppController = (function () {
         data.logs[
           data.logs.findIndex((el) => el.date.getTime() === obj.date.getTime())
         ].saldo = saldoToday;
-
-        /*
-       //take old saldo and add/remove new saldo
-       totalSaldo = 0;
-       //totalSaldo should be sum of all daily saldos - startingSaldo
-       for (i in data.logs) {
-         totalSaldo += data.logs[i].saldo;
-       }
-       //starting saldo gets used only in getSaldo function
-       data.saldo = parseInt(totalSaldo);
-       */
       }
     },
     getSaldo: function () {
@@ -611,32 +590,39 @@ let AppController = (function () {
       const reader = new FileReader();
       reader.onload = function (e) {
         const contents = reader.result;
-        const newData = JSON.parse(contents);
+        let newData;
+        //check if it is correct json
+        try {
+          newData = JSON.parse(contents);
+        } catch (e) {
+          const button = UIController.importButton;
+          UIController.hideConfirmationModal();
+          UIController.issueWarning("Vääränlainen tiedosto", button);
+          return;
+        }
         console.log(newData);
         //check if new data is integer)
         if (
+          newData &&
           newData.logs &&
           newData.workingTime &&
           newData.mostRecent &&
           newData.logs.length > 0
         ) {
-          const conf = window.confirm(
-            "Haluatko todella poistaa vanhat kirjaustiedot ja tallentaa uudet?"
-          );
-          if (conf) {
-            //localStorage.setItem('oldData', JSON.stringify(data));
-            localStorage.setItem("data", JSON.stringify(newData));
-            UIController.hideModal();
-            // 1. Load data from local storage
-            //var storedData = AppController.getStoredData();
-            //if (storedData) {
-            // 2. insert the saved data into local storage
-            AppController.updateData(newData);
-            // 3. update interface
-            UIController.status();
-            UIController.formatLogData(AppController.printData());
-            //}
-          }
+          // 1. Save new data
+          localStorage.setItem("data", JSON.stringify(newData));
+          // 2. load new data into app
+          AppController.updateData(newData);
+          // 3. update interface
+          UIController.hideConfirmationModal();
+          UIController.hideModal();
+          UIController.status();
+          UIController.formatLogData(AppController.printData());
+        } else {
+          const button = UIController.importButton;
+          UIController.issueWarning("Vääränlainen tiedosto", button);
+          UIController.hideConfirmationModal();
+          return false;
         }
       };
       reader.readAsText(input);
@@ -659,7 +645,10 @@ let UIController = (function () {
     buttonSaveCorrection: "#save_correction",
     modal: "#modal-settings",
     modalButton: "#open-settings",
-    modalClose: "close",
+    modalClose: ".close",
+    confirmationModal: "#modal-confirm",
+    confirmationModalCancelButton: "#cancelbtn",
+    confirmationModalApproveButton: "#confirmbtn",
     status: "status",
     logTable: ".history-table",
     logTableSubHeading: ".history-sub-caption",
@@ -744,6 +733,26 @@ let UIController = (function () {
         return true;
       }
     } else return false;
+  };
+
+  const modalConfirmation = (inputFile) => {
+    const cancel = document.querySelector(
+      DOMStrings.confirmationModalCancelButton
+    );
+    const confirmation = document.querySelector(
+      DOMStrings.confirmationModalApproveButton
+    );
+    document.querySelector(DOMStrings.confirmationModal).style.display =
+      "block";
+    cancel.onclick = () => {
+      console.log("Was canceled");
+      document.querySelector(DOMStrings.confirmationModal).style.display =
+        "none";
+    };
+    confirmation.onclick = () => {
+      console.log("Accepted");
+      AppController.importData(inputFile);
+    };
   };
 
   return {
@@ -859,18 +868,6 @@ let UIController = (function () {
       const title = "Työajanseuranta";
       const text = userName + table;
       const files = [new File([table], "loggings.csv", { type: "text/csv" })];
-      //const text = text_input.disabled ? undefined : text_input.innerText;
-      //const url = url_input.disabled ? undefined : url_input.value;
-      //const files = file_input.disabled ? undefined : file_input.files;
-      //The next asks for non production canShare() -method, which is not working in Safari.
-      /*
-      if (files && files.length > 0) {
-        if (!navigator.canShare || !navigator.canShare({files})) {
-          logError('Error: Unsupported feature: navigator.canShare()');
-          //return;
-        }
-      }
-      */
       try {
         await navigator.share({ title: title, text: text, files: files });
         logText("Successfully sent share");
@@ -878,15 +875,24 @@ let UIController = (function () {
         logError("Error sharing: " + error);
       }
     },
+    importButton: document.querySelector(DOMStrings.importButton),
     setModal: function () {
       // Get the modal
       let modal = document.querySelector(DOMStrings.modal);
 
+      //Confirmation modal
+      const confirmationModal = document.querySelector(
+        DOMStrings.confirmationModal
+      );
+
       // Get the button that opens the modal
       let btn = document.querySelector(DOMStrings.modalButton);
 
-      // Get the <span> element that closes the modal
-      let span = document.getElementsByClassName(DOMStrings.modalClose)[0];
+      // Get the <span> element that closes the modals
+      let span = document.querySelectorAll(DOMStrings.modalClose)[0];
+      const confirmationSpan = document.querySelectorAll(
+        DOMStrings.modalClose
+      )[1];
 
       // Get Tallenna button
       let close = document.querySelector(DOMStrings.buttonSubmit);
@@ -921,11 +927,19 @@ let UIController = (function () {
         cleanUpModal();
       };
 
+      // close confirmation modal
+      confirmationSpan.onclick = () => {
+        confirmationModal.style.display = "none";
+      };
+
       // When the user clicks anywhere outside of the modal, close it
       window.onclick = function (event) {
         if (event.target == modal) {
           modal.style.display = "none";
           cleanUpModal();
+        }
+        if (event.target == confirmationModal) {
+          confirmationModal.style.display = "none";
         }
       };
       //Close modal also with the Tallenna button
@@ -956,10 +970,6 @@ let UIController = (function () {
           UIController.formatLogData(AppController.printData());
           AppController.storeData();
         } else {
-          //const p = document.createElement('P');
-          //p.classList.add('warning');
-          //p.innerText = 'Täytä kaikki kentät!';
-          //correctionButton.parentNode.appendChild(p);
           UIController.issueWarning("Täytä kaikki kentät!", correctionButton);
         }
         return false;
@@ -994,6 +1004,10 @@ let UIController = (function () {
       const modal = document.querySelector(DOMStrings.modal);
       modal.style.display = "none";
     },
+    hideConfirmationModal: function () {
+      const modal = document.querySelector(DOMStrings.confirmationModal);
+      modal.style.display = "none";
+    },
     issueWarning: function (text, element) {
       const p = document.createElement("P");
       p.classList.add("warning");
@@ -1019,7 +1033,7 @@ let UIController = (function () {
         UIController.issueWarning("Valitse tiedosto!", button);
         return false;
       }
-      AppController.importData(inputFile);
+      modalConfirmation(inputFile);
     },
   };
 })();
