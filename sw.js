@@ -1,14 +1,14 @@
 //service worker recipe from serviceworke.rs to caching and updating cache later in the background
-var CACHE = 'cache-and-update';
+var CACHE = "cache-and-update";
 
-self.addEventListener('install', function(evt) {
-  console.log('The service worker is being installed.');
+self.addEventListener("install", function (evt) {
+  console.log("The service worker is being installed.");
 
   evt.waitUntil(precache());
 });
 
-self.addEventListener('fetch', function(evt) {
-  console.log('The service worker is serving the asset.');
+self.addEventListener("fetch", function (evt) {
+  console.log("The service worker is serving the asset.");
   evt.respondWith(fromCache(evt.request));
   evt.waitUntil(update(evt.request));
 });
@@ -16,20 +16,22 @@ self.addEventListener('fetch', function(evt) {
 function precache() {
   return caches.open(CACHE).then(function (cache) {
     return cache.addAll([
-      '/Tyo-aikaApp/',
-      '/Tyo-aikaApp/app.js',
-      '/Tyo-aikaApp/index.html',
-      '/Tyo-aikaApp/style.css',
-      '/Tyo-aikaApp/images/icons-192.png'
+      "/Tyo-aikaApp/",
+      "/Tyo-aikaApp/app.js",
+      "/Tyo-aikaApp/index.html",
+      "/Tyo-aikaApp/style.css",
+      "/Tyo-aikaApp/fonts.css",
+      "/Tyo-aikaApp/fonts/static/OpenSans-Regular.woff2",
+      "/Tyo-aikaApp/fonts/static/OpenSans-Medium.woff2",
+      "/Tyo-aikaApp/images/icons-192.png",
     ]);
   });
 }
 
-
 function fromCache(request) {
   return caches.open(CACHE).then(function (cache) {
     return cache.match(request).then(function (matching) {
-      return matching || Promise.reject('no-match');
+      return matching || Promise.reject("no-match");
     });
   });
 }
@@ -80,11 +82,11 @@ self.addEventListener('install', function(event) {
   });
 */
 
-  //to have a new service worker registered, let it store a new cache eg. 'vs2'
-  //it will be activated when no page is needing the old sw anymore.
-  //To remove old caches:
+//to have a new service worker registered, let it store a new cache eg. 'vs2'
+//it will be activated when no page is needing the old sw anymore.
+//To remove old caches:
 
-  /*
+/*
 self.addEventListener('activate', (event) => {
   var cacheKeeplist = ['v2'];
 
