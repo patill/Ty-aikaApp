@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-feature-settings: "kern";
+  src: url("fonts/static/OpenSans-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Open Sans";
+  font-style: bold;
+  font-weight: 600;
+  font-stretch: 100%;
+  src: url("fonts/static/OpenSans-Medium.ttf");
+}
