@@ -301,8 +301,11 @@ let AppController = (function () {
     },
     calcDailySaldo: function (date) {
       const loggings = AppController.getEditableLogs(date);
-      console.log("Loggings:");
-      console.log(loggings);
+      if (debugging) {
+        console.log("Loggings:");
+        console.log(loggings);
+      }
+
       if (loggings && loggings.length > 0) {
         if (loggings[0].out.length > 0 && loggings[0].in.length > 0) {
           //There needs to be at least one out
@@ -311,21 +314,22 @@ let AppController = (function () {
             return a.log - b.log;
           })[0].log;
           const workingDay = lastOut - firstLogin;
-          console.log(workingDay);
+          //console.log(workingDay);
           const ownSaldoArray = countOwnOutSaldo(loggings[0]);
           let ownSaldo = 0; //is zero if no own loggings
           if (ownSaldoArray) {
             ownSaldo = ownSaldoArray.reduce((a, b) => a + b, 0);
-            console.log(ownSaldoArray);
-            loggings[0].ownSaldo = ownSaldo;
-          } else loggings[0].ownSaldo = 0;
-          //update also saldo
+            //console.log(ownSaldoArray);
+          } //else loggings[0].ownSaldo = 0;
+          loggings[0].ownSaldo = ownSaldo;
 
+          //update also saldo
           loggings[0].saldo = workingDay - data.workingTime - ownSaldo;
         } else loggings[0].saldo = 0;
-
-        console.log("after own saldo update");
-        console.log(loggings);
+        if (debugging) {
+          console.log("after own saldo update");
+          console.log(loggings);
+        }
       }
     },
     calcSaldo: function () {
@@ -1117,8 +1121,6 @@ let UIController = (function () {
               //show the table
               showEditionTableDiv(dateDate);
               showEditionTableLogs(loggingsObj);
-              //TODO: remove this line
-              AppController.calcDailySaldo(dateDate);
             } else {
               warningArea = document.querySelector(DOMStrings.editionDIV);
               console.log(editionShowButton);
