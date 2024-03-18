@@ -549,6 +549,16 @@ let AppController = (function () {
       }
     },
     shareData: function () {
+      //get locale of browser
+      const lang = navigator.language;
+      //options for timeFormator
+      const options = {
+        //timeStyle: 'short',
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      //formator for hours
+      const timeFormator = new Intl.DateTimeFormat(lang, options);
       const printOut = [];
       const myData = data.logs.sort(function (a, b) {
         return b.date - a.date;
