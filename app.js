@@ -40,11 +40,9 @@ let AppController = (function () {
     let outTimeArray = [0];
     if (obj.out.find((el) => el.type)) {
       let inArray = obj.in.map((el) => el.log);
-      //console.log(inArray);
       let outArray = obj.out
         .filter((el) => el.type === "OAS")
         .map((el) => el.log);
-      //console.log(outArray);
       //find next bigger entry from out in the in-array, then do in-entry - out-entry
 
       for (let i = 0; i < outArray.length; i++) {
@@ -194,15 +192,14 @@ let AppController = (function () {
         data.logs[
           data.logs.findIndex((el) => el.date.getTime() === dayString.getTime())
         ];
-      //console.log(item);
       logTime = new Date(date + "T" + time);
-      //console.log(`logTime: ${logTime}`);
       if (type === "OAS") {
         OASObj = { log: logTime, type: "OAS" };
       } else {
         OASObj = { log: logTime };
       }
       if (debugging) {
+        console.log("Item to be added:");
         console.log(OASObj);
       }
       if (type === "SISÄÄN") {
@@ -228,6 +225,7 @@ let AppController = (function () {
             : (mostRecentOut = item.out[i].log);
         }
         if (debugging) {
+          console.log("Most recent out from processCorrection:");
           console.log(mostRecentOut);
         }
         //calculate smallest amount, i.e. the first event in that array
@@ -236,6 +234,7 @@ let AppController = (function () {
             return a.log - b.log;
           })[0].log;
           if (debugging) {
+            console.log("First login today from processCorrection");
             console.log(firstLoginToday);
           }
           // calculate difference
@@ -252,10 +251,12 @@ let AppController = (function () {
         //calc only if own loggings have happened:
         if (ownSaldoArray) {
           if (debugging) {
+            console.log("own saldo:");
             console.log(ownSaldoArray);
           }
           ownSaldo = arraySum(ownSaldoArray);
           if (debugging) {
+            console.log("Own saldo sum");
             console.log(this.toHours(ownSaldo));
           }
           //write it into memory
@@ -302,7 +303,7 @@ let AppController = (function () {
     calcDailySaldo: function (date) {
       const loggings = AppController.getEditableLogs(date);
       if (debugging) {
-        console.log("Loggings:");
+        console.log("Loggings from calcDailySaldo:");
         console.log(loggings);
       }
 
@@ -314,13 +315,11 @@ let AppController = (function () {
             return a.log - b.log;
           })[0].log;
           const workingDay = lastOut - firstLogin;
-          //console.log(workingDay);
           const ownSaldoArray = countOwnOutSaldo(loggings[0]);
           let ownSaldo = 0; //is zero if no own loggings
           if (ownSaldoArray) {
             ownSaldo = ownSaldoArray.reduce((a, b) => a + b, 0);
-            //console.log(ownSaldoArray);
-          } //else loggings[0].ownSaldo = 0;
+          }
           loggings[0].ownSaldo = ownSaldo;
 
           //update also saldo
@@ -354,11 +353,9 @@ let AppController = (function () {
 
         // calculate difference
         workingDay = mostRecentOut - firstLoginToday;
-        //console.log(this.toHours(workingDay));
 
         //take into account also login and logouts in between and their reasons
         ownSaldoArray = countOwnOutSaldo(obj);
-        //console.log(ownSaldoArray);
         //Prepare own saldo, so it is not undefined
         ownSaldo = 0;
         const arraySum = (arr) => arr.reduce((a, b) => a + b, 0);
@@ -366,6 +363,7 @@ let AppController = (function () {
         if (ownSaldoArray) {
           ownSaldo = arraySum(ownSaldoArray);
           if (debugging) {
+            console.log("Own saldo from calcSaldo:");
             console.log(this.toHours(ownSaldo));
           }
           //write it into memory
@@ -449,6 +447,7 @@ let AppController = (function () {
         return b.date - a.date;
       });
       if (debugging) {
+        console.log("All logs:");
         console.log(myData);
         window.myData = myData;
       }
@@ -492,6 +491,7 @@ let AppController = (function () {
         }); //.sort((a,b) => b - a); //sort descending
 
         if (debugging) {
+          console.log("My data by month:");
           console.log(myDataByMonth);
           window.myDataByMonth = myDataByMonth;
         }
@@ -543,6 +543,7 @@ let AppController = (function () {
         }
 
         if (debugging) {
+          console.log("print out:");
           console.log(printOut);
         }
         return printOut;
@@ -635,7 +636,11 @@ let AppController = (function () {
           UIController.issueWarning("Vääränlainen tiedosto", button);
           return;
         }
-        console.log(newData);
+        if (debugging) {
+          console.log("New data to import:");
+          console.log(newData);
+        }
+
         //check if new data is integer)
         if (
           newData &&
@@ -679,7 +684,7 @@ let AppController = (function () {
           newlogs.push(obj);
         });
         if (debugging) {
-          console.log(newlogs);
+          console.log("There are as many logged days as before:");
           console.log(data.logs.length === newlogs.length);
         }
       }
@@ -832,6 +837,7 @@ let UIController = (function () {
     });
     loggings.sort((el, next) => el.log.getTime() - next.log.getTime());
     if (debugging) {
+      console.log("Sorted loggings:");
       console.log(loggings);
     }
     //Add the loggings to the table, if there are any
@@ -1002,6 +1008,7 @@ let UIController = (function () {
       table += text_input.join("\n").replace(/,/g, "");
       table += "</table>";
       if (debugging) {
+        console.log("The html table of data:");
         console.log(table);
       }
       const htmlHead = `<!DOCTYPE html>
@@ -1018,7 +1025,6 @@ let UIController = (function () {
         type: "text/html",
       });
       const url = URL.createObjectURL(blob);
-      console.log(url);
       return url;
     },
     webShareButton: function () {
@@ -1151,10 +1157,9 @@ let UIController = (function () {
               showEditionTableDiv(dateDate);
               showEditionTableLogs(loggingsObj);
             } else {
-              warningArea = document.querySelector(DOMStrings.editionDIV);
-              console.log(editionShowButton);
+              cleanUpModal();
               UIController.issueWarning(
-                "Ei kirjauksia tälle päivälle",
+                "Ei kirjauksia tälle päivälle.",
                 editionShowButton
               );
             }
@@ -1166,6 +1171,7 @@ let UIController = (function () {
             submitButton.addEventListener("click", function () {
               const onlyChecked = getSelectedLoggings();
               if (debugging) {
+                console.log("Checked entries:");
                 console.log(onlyChecked);
               }
               if (onlyChecked.length > 0) {
@@ -1311,16 +1317,6 @@ let Controller = (function (AppController, UIController) {
     button.addEventListener("click", UIController.prepareImport);
     UIController.inputVerification();
   };
-
-  //error function for webshare function
-  function logText(message, isError) {
-    if (isError) console.error(message);
-    else console.log(message);
-  }
-
-  function logError(message) {
-    logText(message, true);
-  }
 
   let ctrAddIn = function () {
     //call function from UIController
