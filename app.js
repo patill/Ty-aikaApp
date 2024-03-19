@@ -1004,8 +1004,15 @@ let UIController = (function () {
       if (debugging) {
         console.log(table);
       }
+      const htmlHead = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="utf-8">
+      </head>
+      <body>`;
+      const htmlEnd = `</body></html>`;
       const title = "Työajanseuranta";
-      const text = `<p>${title} : ${userName}</p>` + table;
+      const text = htmlHead + `<p>${title} : ${userName}</p>` + table + htmlEnd;
 
       const blob = new Blob([text], {
         type: "text/html",
