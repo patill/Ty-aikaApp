@@ -319,6 +319,13 @@ let AppController = (function () {
           let ownSaldo = 0; //is zero if no own loggings
           if (ownSaldoArray) {
             ownSaldo = ownSaldoArray.reduce((a, b) => a + b, 0);
+            if (debugging) {
+              console.log("Own saldo array:");
+              console.log(ownSaldoArray);
+            }
+          }
+          if (debugging) {
+            console.log("Own saldo = " + this.toHours(ownSaldo));
           }
           loggings[0].ownSaldo = ownSaldo;
 
