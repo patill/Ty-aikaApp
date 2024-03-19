@@ -822,19 +822,19 @@ let UIController = (function () {
     let loggings = [];
     logsToShow[0].in.forEach((el) => {
       el.type = "SISÄÄN";
+      el.log = new Date(el.log);
       loggings.push(el);
     });
     logsToShow[0].out.forEach((el) => {
       el.type = el.type === "OAS" ? "Oma asia ulos" : "ULOS";
+      el.log = new Date(el.log);
       loggings.push(el);
     });
-    loggings.sort((el, next) => el.log > next.log);
+    loggings.sort((el, next) => el.log.getTime() - next.log.getTime());
     if (debugging) {
       console.log(loggings);
     }
-
     //Add the loggings to the table, if there are any
-    //This again in the UIController?
     const table = document.querySelector(DOMStrings.editionTable);
 
     let tableHTML = `<tr><th>Valitse</th><th>Päivä</th><th>Aika</th><th>Toiminto</th></tr>`;
