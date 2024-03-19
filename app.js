@@ -305,9 +305,12 @@ let AppController = (function () {
       if (debugging) {
         console.log("Loggings from calcDailySaldo:");
         console.log(loggings);
+        console.log("date is " + date);
       }
 
       if (loggings && loggings.length > 0) {
+        let saldo = 0;
+        let ownSaldo = 0; //is zero if no own loggings
         if (loggings[0].out.length > 0 && loggings[0].in.length > 0) {
           //There needs to be at least one out
           const lastOut = loggings[0].out.sort((a, b) => b.log - a.log)[0].log;
@@ -316,7 +319,7 @@ let AppController = (function () {
           })[0].log;
           const workingDay = lastOut - firstLogin;
           const ownSaldoArray = countOwnOutSaldo(loggings[0]);
-          let ownSaldo = 0; //is zero if no own loggings
+
           if (ownSaldoArray) {
             ownSaldo = ownSaldoArray.reduce((a, b) => a + b, 0);
             if (debugging) {
@@ -327,14 +330,21 @@ let AppController = (function () {
           if (debugging) {
             console.log("Own saldo = " + this.toHours(ownSaldo));
           }
-          loggings[0].ownSaldo = ownSaldo;
+          //loggings[0].ownSaldo = ownSaldo;
 
           //update also saldo
-          loggings[0].saldo = workingDay - data.workingTime - ownSaldo;
-        } else loggings[0].saldo = 0;
-        if (debugging) {
-          console.log("after own saldo update");
-          console.log(loggings);
+          saldo = workingDay - data.workingTime - ownSaldo;
+        }
+        //Safe to real data:
+        const realLoggings =
+          data.logs[
+            data.logs.findIndex(
+              (el) => el.date.getTime() === loggings[0].date.getTime()
+            )
+          ];
+        if (realLoggings) {
+          realLoggings.ownSaldo = ownSaldo;
+          realLoggings.saldo = saldo;
         }
       }
     },
@@ -1184,7 +1194,9 @@ let UIController = (function () {
               if (onlyChecked.length > 0) {
                 AppController.editLogs(onlyChecked);
                 //update saldo:
-                AppController.calcDailySaldo(dateDate);
+                const realDate = new Date(parseInt(onlyChecked[0].value));
+                console.log(realDate);
+                AppController.calcDailySaldo(realDate);
                 //save new loggings to data
                 AppController.storeData();
                 //close modal
