@@ -1002,7 +1002,7 @@ let UIController = (function () {
       table += text_input.join("\n").replace(/,/g, "\t");
       const title = "Työajanseuranta";
       const text = userName + table;
-      const files = [new File([table], "loggings.csv", { type: "text/csv" })];
+      const files = [new File([table], "loggings.html", { type: "text/html" })];
       try {
         await navigator.share({ title: title, text: text, files: files });
         logText("Successfully sent share");
