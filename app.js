@@ -1032,11 +1032,40 @@ let UIController = (function () {
       <html lang="en">
       <head>
       <meta charset="utf-8">
+      <style>
+      body {
+        font-family: sans-serif;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      tr:hover {
+        background-color: #ddd;
+      }
+      th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #e67300;
+        color: white;
+      }
+      </style>
       </head>
       <body>`;
       const htmlEnd = `</body></html>`;
       const title = "Työajanseuranta";
-      const text = htmlHead + `<p>${title} : ${userName}</p>` + table + htmlEnd;
+      const text =
+        htmlHead +
+        `<p>${title}: ${userName}</p><p>Oma saldo: ${AppController.getSaldo()}</p>` +
+        table +
+        htmlEnd;
 
       const blob = new Blob([text], {
         type: "text/html",
