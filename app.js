@@ -590,16 +590,20 @@ let AppController = (function () {
             ? dailyOutDate - dailyInDate
             : "---";
         printLine = [
-          UIController.formator.format(myData[i].date),
-          dailyInDate > 0 ? timeFormator.format(dailyInDate) : "---",
-          dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : "---",
-          !isNaN(workingDay)
-            ? this.toHours(workingDay).replace(":", ".")
-            : "---", //työpäivän pituus
-          this.toHours(myData[i].saldo).replace(":", "."),
-          myData[i].ownSaldo
-            ? this.toHours(myData[i].ownSaldo).replace(":", ".")
-            : "---",
+          "<tr>",
+          `<td>${UIController.formator.format(myData[i].date)}</td>`,
+          `<td>${
+            dailyInDate > 0 ? timeFormator.format(dailyInDate) : "---"
+          }</td>`,
+          `<td>${
+            dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : "---"
+          }</td>`,
+          `<td>${!isNaN(workingDay) ? this.toHours(workingDay) : "---"}</td>`, //työpäivän pituus
+          `<td>${this.toHours(myData[i].saldo)}</td>`,
+          `<td>${
+            myData[i].ownSaldo ? this.toHours(myData[i].ownSaldo) : "---"
+          }</td>`,
+          "</tr>",
         ];
         printOut.push(printLine);
       }
@@ -680,7 +684,7 @@ let AppController = (function () {
         }
       }
     },
-    version: 20240319,
+    version: 20240319.2,
   };
 })();
 
@@ -987,28 +991,36 @@ let UIController = (function () {
       }
     },
 
-    webShare: async function () {
-      if (navigator.share === undefined) {
-        logError("Error: Unsupported feature: navigator.share()");
-        return;
-      }
+    webShare: function () {
       const userName = `${AppController.getName()}
 
       `;
       const text_input = AppController.shareData();
       const tableTitle =
-        "Päivä\t Sisään\t Ulos\t Työpäivä\t Saldo\t Oma aika\n";
-      let table = tableTitle;
-      table += text_input.join("\n").replace(/,/g, "\t");
-      const title = "Työajanseuranta";
-      const text = userName + table;
-      const files = [new File([table], "loggings.html", { type: "text/html" })];
-      try {
-        await navigator.share({ title: title, text: text, files: files });
-        logText("Successfully sent share");
-      } catch (error) {
-        logError("Error sharing: " + error);
+        "<tr><th>Päivä</th> <th>Sisään</th> <th>Ulos</th> <th>Työpäivä</th> <th>Saldo</th> <th>Oma aika</th></tr>\n";
+      let table = "<table>" + tableTitle;
+      table += text_input.join("\n").replace(/,/g, "");
+      table += "</table>";
+      if (debugging) {
+        console.log(table);
       }
+      const title = "Työajanseuranta";
+      const text = `<p>${title} : ${userName}</p>` + table;
+
+      const blob = new Blob([text], {
+        type: "text/html",
+      });
+      const url = URL.createObjectURL(blob);
+      console.log(url);
+      return url;
+    },
+    webShareButton: function () {
+      const shareDiv = document.querySelector(DOMStrings.shareButton);
+      UIController.downloadLink(
+        shareDiv,
+        UIController.webShare(),
+        "OmatKirjaukset.html"
+      );
     },
     importButton: document.querySelector(DOMStrings.importButton),
     setModal: function () {
@@ -1280,25 +1292,8 @@ let Controller = (function (AppController, UIController) {
       .addEventListener("blur", UIController.updatePercent);
 
     //Share button
-    document
-      .querySelector(DOM.shareButton)
-      .addEventListener("click", UIController.webShare);
-
-    if (navigator.share === undefined) {
-      if (window.location.protocol === "http:") {
-        // navigator.share() is only available in secure contexts.
-        window.location.replace(
-          window.location.href.replace(/^http:/, "https:")
-        );
-      } else {
-        logError(
-          "Error: You need to use a browser that supports this draft " +
-            "proposal."
-        );
-        //hide button, if not supported
-        document.querySelector(DOM.shareButton).classList.add("hidden");
-      }
-    }
+    const shareButton = document.querySelector(DOM.shareButton);
+    shareButton.addEventListener("click", UIController.webShareButton);
 
     //Download link
     const downloadDiv = document.querySelector("#download-data-link");
