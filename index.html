@@ -127,12 +127,12 @@
 
             <div class="logging-correction-button">
               <button class="button" id="show-correction">
-                Korjaa kirjaus
+                Lisää puuttuva kirjaus
               </button>
             </div>
 
-            <div class="logging-correction">
-              <h3>Korjaa kirjaus</h3>
+            <div class="logging-correction settings-box">
+              <h3>Lisää puuttuva kirjaus</h3>
               <form>
                 <label for="correction-date">Päivämäärä</label>
                 <input
@@ -183,6 +183,36 @@
                 />
               </form>
             </div>
+            <!-- new button to remove saved time stamps-->
+            <div class="settings-box">
+              <h3>Poista kirjauksia</h3>
+              <div class="logging-edition-button">
+                <label for="edition-date">Päivämäärä</label>
+                <input
+                  type="date"
+                  class="correction-input"
+                  required
+                  id="edition-date"
+                /><br />
+                <button class="button" id="show-edition" type="submit">
+                  Näytä kirjaukset
+                </button>
+              </div>
+              <div class="logging-edition hidden">
+                <!-- Heading and table where the edition logs are shown -->
+                <h4 id="edition-heading"></h4>
+                <table id="logging-edition-table"></table>
+                <button
+                  class="button"
+                  id="logging-edition-submit"
+                  type="submit"
+                >
+                  Poista valitut rivit
+                </button>
+                <button class="button" id="abort-edition">Sulje</button>
+              </div>
+            </div>
+
             <!-- link to download own data -->
             <div
               type="button"

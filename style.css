@@ -23,6 +23,10 @@ h1 {
   color: white;
 }
 
+h3 {
+  margin-top: 5px;
+}
+
 .wrapper {
   align-content: center;
   background-color: #f0f0f5;
@@ -228,7 +232,7 @@ form {
   /*margin: 5% 15%;*/ /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
-  width: 250px; /* Could be more or less, depending on screen size */
+  width: fit-content; /* Could be more or less, depending on screen size */
   /*max-width: 100%;*/
   border-radius: 8px;
 }
@@ -265,4 +269,11 @@ form {
 /* Logging corrections */
 .logging-correction {
   display: none;
+}
+
+.settings-box {
+  background-color: #e7e5e2;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 5px;
 }

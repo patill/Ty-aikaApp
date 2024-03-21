@@ -299,6 +299,35 @@ let AppController = (function () {
       }
       return mostRecentOut;
     },
+    calcDailySaldo: function (date) {
+      const loggings = AppController.getEditableLogs(date);
+      console.log("Loggings:");
+      console.log(loggings);
+      if (loggings && loggings.length > 0) {
+        if (loggings[0].out.length > 0 && loggings[0].in.length > 0) {
+          //There needs to be at least one out
+          const lastOut = loggings[0].out.sort((a, b) => b.log - a.log)[0].log;
+          const firstLogin = loggings[0].in.sort(function (a, b) {
+            return a.log - b.log;
+          })[0].log;
+          const workingDay = lastOut - firstLogin;
+          console.log(workingDay);
+          const ownSaldoArray = countOwnOutSaldo(loggings[0]);
+          let ownSaldo = 0; //is zero if no own loggings
+          if (ownSaldoArray) {
+            ownSaldo = ownSaldoArray.reduce((a, b) => a + b, 0);
+            console.log(ownSaldoArray);
+            loggings[0].ownSaldo = ownSaldo;
+          } else loggings[0].ownSaldo = 0;
+          //update also saldo
+
+          loggings[0].saldo = workingDay - data.workingTime - ownSaldo;
+        } else loggings[0].saldo = 0;
+
+        console.log("after own saldo update");
+        console.log(loggings);
+      }
+    },
     calcSaldo: function () {
       //should be called only after logout
       let obj,
@@ -410,8 +439,7 @@ let AppController = (function () {
         hour: "2-digit",
         minute: "2-digit",
       };
-      //formator for dates
-      const formator = new Intl.DateTimeFormat(lang);
+      //formator for hours
       const timeFormator = new Intl.DateTimeFormat(lang, options);
       const myData = data.logs.sort(function (a, b) {
         return b.date - a.date;
@@ -423,7 +451,7 @@ let AppController = (function () {
       //format secondary headings in table
       // input is date with the first day of the month
       const formatHeading = (date) => {
-        var string = new Intl.DateTimeFormat(lang, {
+        var string = new Intl.DateTimeFormat(navigator.language, {
           year: "numeric",
           month: "long",
         }).format(date);
@@ -440,7 +468,7 @@ let AppController = (function () {
             weekday: "long",
           }).format(date);
           return weekday[0].toUpperCase() + weekday.substring(1);
-        } else return formator.format(date);
+        } else return UIController.formator.format(date);
       };
 
       printOut = [];
@@ -518,17 +546,6 @@ let AppController = (function () {
     },
     shareData: function () {
       const printOut = [];
-      //get browser language
-      const lang = navigator.language;
-      //options for timeFormator
-      const options = {
-        //timeStyle: 'short',
-        hour: "2-digit",
-        minute: "2-digit",
-      };
-      //formator for dates
-      const formator = new Intl.DateTimeFormat(lang);
-      const timeFormator = new Intl.DateTimeFormat(lang, options);
       const myData = data.logs.sort(function (a, b) {
         return b.date - a.date;
       });
@@ -559,7 +576,7 @@ let AppController = (function () {
             ? dailyOutDate - dailyInDate
             : "---";
         printLine = [
-          formator.format(myData[i].date),
+          UIController.formator.format(myData[i].date),
           dailyInDate > 0 ? timeFormator.format(dailyInDate) : "---",
           dailyOutDate > 0 ? timeFormator.format(dailyOutDate) : "---",
           !isNaN(workingDay)
@@ -627,7 +644,29 @@ let AppController = (function () {
       };
       reader.readAsText(input);
     },
-    version: 20240126,
+    getEditableLogs: function (filter) {
+      return data.logs.filter(
+        (obj) => obj.date.toDateString() === filter.toDateString()
+      );
+    },
+    editLogs: function (logsToBeRemoved) {
+      for (item of logsToBeRemoved) {
+        const poistettava = parseInt(item.value);
+        if (debugging) console.log(item);
+
+        const newlogs = [];
+        data.logs.forEach((obj) => {
+          obj.in = obj.in.filter((el) => el.log.getTime() !== poistettava);
+          obj.out = obj.out.filter((el) => el.log.getTime() !== poistettava);
+          newlogs.push(obj);
+        });
+        if (debugging) {
+          console.log(newlogs);
+          console.log(data.logs.length === newlogs.length);
+        }
+      }
+    },
+    version: 20240315,
   };
 })();
 
@@ -668,6 +707,15 @@ let UIController = (function () {
     correctionOAS: "#radio-oas",
     correctionShow: "#show-correction",
     correctionDIV: ".logging-correction",
+    editionDIV: ".logging-edition",
+    editionButtonDIV: ".logging-edition-button",
+    editionShow: "#show-edition",
+    editionDate: "#edition-date",
+    editionTable: "#logging-edition-table",
+    editionTableInput: ".edition-table-input",
+    editionSubmit: "#logging-edition-submit",
+    editionHeading: "#edition-heading",
+    abortEdition: "#abort-edition",
     importInput: "#import-data-file",
     importButton: "#import-data-submit",
   };
@@ -698,6 +746,8 @@ let UIController = (function () {
     document.querySelectorAll(".warning").forEach((el) => el.remove());
     document.querySelector(DOMStrings.importInput).value = "";
     document.querySelector(DOMStrings.importInput).classList.remove("success");
+    document.querySelector(DOMStrings.editionButtonDIV).style.display = "block";
+    document.querySelector(DOMStrings.editionDIV).style.display = "none";
   };
 
   //error function for webshare function
@@ -736,6 +786,58 @@ let UIController = (function () {
     } else return false;
   };
 
+  const showEditionTableDiv = (dateDate) => {
+    document.querySelector(DOMStrings.editionButtonDIV).style.display = "none";
+    document.querySelector(DOMStrings.editionDIV).style.display = "block";
+    document.querySelector(
+      DOMStrings.editionHeading
+    ).innerHTML = `Valitse poistettavat leimaukset päivälle ${UIController.formator.format(
+      dateDate
+    )}`;
+  };
+
+  const showEditionTableLogs = (logsToBeShown) => {
+    //Make array from all loggings of the day to sort them:
+    //copy with conversion to json to get a deep copy in order not to change the original data yet:
+    const logsJson = JSON.stringify(logsToBeShown);
+    const logsToShow = JSON.parse(logsJson);
+    let loggings = [];
+    logsToShow[0].in.forEach((el) => {
+      el.type = "SISÄÄN";
+      loggings.push(el);
+    });
+    logsToShow[0].out.forEach((el) => {
+      el.type = el.type === "OAS" ? "Oma asia ulos" : "ULOS";
+      loggings.push(el);
+    });
+    loggings.sort((el, next) => el.log > next.log);
+    if (debugging) {
+      console.log(loggings);
+    }
+
+    //Add the loggings to the table, if there are any
+    //This again in the UIController?
+    const table = document.querySelector(DOMStrings.editionTable);
+
+    let tableHTML = `<tr><th>Valitse</th><th>Päivä</th><th>Aika</th><th>Toiminto</th></tr>`;
+    loggings.forEach((el, index) => {
+      const date = new Date(el.log);
+      const row = `<tr><td><input id="edit_${index}" class="edition-table-input" value="${date.getTime()}" type="checkbox" /></td><td>${UIController.formator.format(
+        date
+      )}</td><td>${timeFormator.format(date)}</td><td>${el.type}</td></tr>`;
+      tableHTML += row;
+    });
+
+    table.innerHTML = tableHTML;
+    return true;
+  };
+
+  const getSelectedLoggings = () => {
+    //get table input fields
+    const tableInputs = document.querySelectorAll(DOMStrings.editionTableInput);
+    return [...tableInputs].filter((el) => el.checked);
+  };
+
   const modalConfirmation = (inputFile) => {
     const cancel = document.querySelector(
       DOMStrings.confirmationModalCancelButton
@@ -756,10 +858,23 @@ let UIController = (function () {
     };
   };
 
+  const subModalClose = () => {
+    document.querySelector(DOMStrings.editionButtonDIV).style.display = "block";
+    document.querySelector(DOMStrings.editionDIV).style.display = "none";
+    return false;
+  };
+
+  //const options = ;
+  const timeFormator = new Intl.DateTimeFormat(navigator.language, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return {
     getDOMStrings: function () {
       return DOMStrings;
     },
+    formator: new Intl.DateTimeFormat(navigator.language),
     regLogging: function (type, addition) {
       // addition at the moment only 'OAS'
       AppController.addLogging(type, addition);
@@ -920,6 +1035,7 @@ let UIController = (function () {
 
       // When the user clicks on the button, open the modal
       btn.onclick = function () {
+        cleanUpModal();
         modal.style.display = "block";
         AppController.updateStartingSaldo();
         AppController.updateWorkingTimePercent();
@@ -980,6 +1096,82 @@ let UIController = (function () {
         }
         return false;
       };
+
+      //Logging edition function in modal
+      const editionShowButton = document.querySelector(DOMStrings.editionShow);
+
+      if (editionShowButton) {
+        editionShowButton.onclick = function () {
+          const date = document.querySelector(DOMStrings.editionDate).value;
+          if (debugging) {
+            console.log(date);
+          }
+
+          if (date && date.length > 0) {
+            //format the chosen date as Date
+            const dateDate = new Date(date);
+            //Filter logs for chosen date:
+            const loggingsObj = AppController.getEditableLogs(dateDate);
+
+            if (loggingsObj.length > 0) {
+              //show the table
+              showEditionTableDiv(dateDate);
+              showEditionTableLogs(loggingsObj);
+              //TODO: remove this line
+              AppController.calcDailySaldo(dateDate);
+            } else {
+              warningArea = document.querySelector(DOMStrings.editionDIV);
+              console.log(editionShowButton);
+              UIController.issueWarning(
+                "Ei kirjauksia tälle päivälle",
+                editionShowButton
+              );
+            }
+
+            //Check if one is selected, when submit button pressed
+            const submitButton = document.querySelector(
+              DOMStrings.editionSubmit
+            );
+            submitButton.addEventListener("click", function () {
+              const onlyChecked = getSelectedLoggings();
+              if (debugging) {
+                console.log(onlyChecked);
+              }
+              if (onlyChecked.length > 0) {
+                AppController.editLogs(onlyChecked);
+                //update saldo:
+                AppController.calcDailySaldo(dateDate);
+                //save new loggings to data
+                AppController.storeData();
+                //close modal
+                modal.style.display = "none";
+                reset();
+                cleanUpModal();
+              } else {
+                cleanUpModal();
+                UIController.issueWarning(
+                  "Valitse vähintään yksi poistettava rivi",
+                  editionShowButton
+                );
+              }
+              //call also refresh of time table drawing
+              UIController.status();
+              UIController.formatLogData(AppController.printData());
+              return false;
+            });
+            //sulje painamalla sulje-nappi
+            const button = document.querySelector(DOMStrings.abortEdition);
+            button.addEventListener("click", subModalClose);
+          } else {
+            cleanUpModal();
+            UIController.issueWarning(
+              "Täytä kaikki kentät!",
+              editionShowButton
+            );
+          }
+          return false;
+        };
+      }
     },
     downloadLink: function (element, fileUrl, fileName) {
       const a = document.createElement("a");
